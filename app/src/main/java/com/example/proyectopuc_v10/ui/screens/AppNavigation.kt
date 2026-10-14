@@ -11,6 +11,7 @@ import com.example.proyectopuc_v10.viewmodel.UsuarioViewModel
 sealed class Screen(val route: String) {
     object Registro : Screen("registro")
     object Resumen : Screen("resumen")
+    object Animaciones : Screen("animaciones")
 }
 
 @Composable
@@ -39,8 +40,15 @@ fun AppNavigation() {
                 viewModel = usuarioViewModel,
                 onVolver = {
                     navController.popBackStack()
+                },
+                onIrAAnimaciones = {
+                    navController.navigate(Screen.Animaciones.route)
                 }
             )
+        }
+        // Pantalla Principal de la Guía 12
+        composable(Screen.Animaciones.route) {
+            PantallaPrincipal()
         }
     }
 }

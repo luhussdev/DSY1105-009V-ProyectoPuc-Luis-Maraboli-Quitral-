@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -20,7 +21,8 @@ import androidx.compose.runtime.getValue
 @Composable
 fun ResumenScreen(
     viewModel: UsuarioViewModel,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    onIrAAnimaciones: () -> Unit = {}
 ) {
     val estado by viewModel.estado.collectAsState()
 
@@ -62,6 +64,12 @@ fun ResumenScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Volver al Inicio")
+            }
+            Button(
+                onClick = onIrAAnimaciones,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Ver Estado y Animaciones")
             }
         }
     }

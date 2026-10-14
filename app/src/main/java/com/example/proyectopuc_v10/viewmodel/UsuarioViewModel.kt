@@ -42,8 +42,17 @@ class UsuarioViewModel : ViewModel() {
         val current = _estado.value
 
         val errorNombre = if (current.nombre.isBlank()) "El nombre no puede estar vacio" else null
-        val errorCorreo = if (current.correo.contains("@")) "El correo no es válido" else null
-        val errorClave = if (current.clave.length < 6) "La contraseña debe tener al menos 6 caracteres" else null
+        val errorCorreo = if (!current.correo.contains(("@")) || !current.correo.contains(".")) {
+            "Ingresa un correo válido (ej: usuario@dominio.com)"
+        } else {
+            null
+        }
+        val errorClave = when {
+            current.clave.isBlank() -> "La contraseña no puede estar vacía"
+            current.clave.length < 6 -> "La contraseña debe tener al menos 6 caracteres"
+            !current.clave.any { it.isDigit() } -> "La contraseña debe tener al menos un número"
+            else -> null
+        }
         val errorDireccion = if (current.direccion.isBlank()) "La dirección no puede estar vacia" else null
         val errorTerminos = if (!current.aceptaTerminos) "Debe aceptar los términos y condiciones" else null
 
