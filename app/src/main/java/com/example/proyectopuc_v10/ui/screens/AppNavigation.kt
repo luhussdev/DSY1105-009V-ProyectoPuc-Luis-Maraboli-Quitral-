@@ -12,6 +12,7 @@ sealed class Screen(val route: String) {
     object Registro : Screen("registro")
     object Resumen : Screen("resumen")
     object Animaciones : Screen("animaciones")
+    object Perfil : Screen("perfil")
 }
 
 @Composable
@@ -43,12 +44,21 @@ fun AppNavigation() {
                 },
                 onIrAAnimaciones = {
                     navController.navigate(Screen.Animaciones.route)
+                },
+                onIrAPerfil = {
+                    navController.navigate(Screen.Perfil.route)
                 }
             )
         }
         // Pantalla Principal de la Guía 12
         composable(Screen.Animaciones.route) {
             PantallaPrincipal()
+        }
+
+        composable(Screen.Perfil.route) {
+            PerfilScreen(
+                onVolver = { navController.popBackStack() }
+            )
         }
     }
 }

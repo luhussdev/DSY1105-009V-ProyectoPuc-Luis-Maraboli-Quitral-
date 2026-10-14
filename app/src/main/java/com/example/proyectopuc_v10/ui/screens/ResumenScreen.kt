@@ -22,7 +22,8 @@ import androidx.compose.runtime.getValue
 fun ResumenScreen(
     viewModel: UsuarioViewModel,
     onVolver: () -> Unit,
-    onIrAAnimaciones: () -> Unit = {}
+    onIrAAnimaciones: () -> Unit = {},
+    onIrAPerfil: () -> Unit = {}
 ) {
     val estado by viewModel.estado.collectAsState()
 
@@ -70,6 +71,13 @@ fun ResumenScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Ver Estado y Animaciones")
+            }
+
+            Button(
+                onClick = onIrAPerfil,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Ir a Mi Perfil (Cámara / Galería)")
             }
         }
     }
