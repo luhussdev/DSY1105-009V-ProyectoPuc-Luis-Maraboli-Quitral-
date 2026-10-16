@@ -9,9 +9,9 @@ import com.example.proyectopuc_v10.viewmodel.UsuarioViewModel
 
 // Definicion de rutas utlizando Sealed Class
 sealed class Screen(val route: String) {
+    object Principal : Screen("principal")
     object Registro : Screen("registro")
     object Resumen : Screen("resumen")
-    object Animaciones : Screen("animaciones")
     object Perfil : Screen("perfil")
 }
 
@@ -23,38 +23,45 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Registro.route
+        startDestination = Screen.Principal.route
     ) {
-        // Pantalla de Formulario de Registro
+        // Pantalla Principal (Catálogo I+D + DataStore)
+        composable(Screen.Principal.route) {
+            PantallaPrincipal(
+                onIrASolicitud = {navController.navigate(Screen.Registro.route) },
+                onIrAPerfil = {navController.navigate(Screen.Perfil.route)},
+            )
+        }
+
+        // Formulario de Solicitud / contacto
         composable(Screen.Registro.route) {
             RegistroScreen(
                 viewModel = usuarioViewModel,
-                onNavegarResumen = {
+                onSolicitudExitosa = {
                     navController.navigate(Screen.Resumen.route)
+                },
+                onVolver = {
+                    navController.popBackStack()
                 }
             )
         }
 
-        // Pantalla de Resumen
+        // Resumen de la solicitud
         composable(Screen.Resumen.route) {
             ResumenScreen(
                 viewModel = usuarioViewModel,
-                onVolver = {
-                    navController.popBackStack()
-                },
-                onIrAAnimaciones = {
-                    navController.navigate(Screen.Animaciones.route)
+                onVolverInicio = {
+                    navController.navigate(Screen.Principal.route) {
+                        popUpTo(Screen.Principal.route) { inclusive = true }
+                    }
                 },
                 onIrAPerfil = {
                     navController.navigate(Screen.Perfil.route)
                 }
             )
         }
-        // Pantalla Principal de la Guía 12
-        composable(Screen.Animaciones.route) {
-            PantallaPrincipal()
-        }
 
+        // Perfil de Usuario / Investigador
         composable(Screen.Perfil.route) {
             PerfilScreen(
                 onVolver = { navController.popBackStack() }

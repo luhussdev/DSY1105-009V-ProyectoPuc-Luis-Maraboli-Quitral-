@@ -11,73 +11,103 @@ import kotlinx.coroutines.flow.update
 class UsuarioViewModel : ViewModel() {
 
     // Estado privado mutable
-    private val _estado = MutableStateFlow(FormularioUiState())
+    private val _uiState = MutableStateFlow(FormularioUiState())
+    val uiState: StateFlow<FormularioUiState> = _uiState.asStateFlow()
 
-    // Estado público inmutable expuesto a la UI
-    val estado: StateFlow<FormularioUiState> = _estado.asStateFlow()
-
-    // Funciones para actualizar cada campo que el usuario interactue
-    fun onNombreChange(nuevoNombre: String) {
-        _estado.update { it.copy(nombre = nuevoNombre) }
+    fun onNombreCambiado(nuevoNombre: String) {
+        _uiState.update {
+            it.copy(
+                nombre = nuevoNombre,
+                errores = it.errores.copy(nombre = null)
+            )
+        }
     }
 
-    fun onCorreoChange(nuevoCorreo: String) {
-        _estado.update { it.copy(correo = nuevoCorreo) }
+    fun onCorreoCambiado(nuevoCorreo: String) {
+        _uiState.update {
+            it.copy(
+                correo = nuevoCorreo,
+                errores = it.errores.copy(correo = null)
+            )
+        }
     }
 
-    fun onClaveChange(nuevaClave: String) {
-        _estado.update { it.copy(clave = nuevaClave) }
+    fun onOrganizacionCambiada(nuevaOrg: String) {
+        _uiState.update {
+            it.copy(
+                organizacion = nuevaOrg,
+                errores = it.errores.copy(organizacion = null)
+            )
+        }
     }
 
-    fun onDireccionChange(nuevaDireccion: String) {
-        _estado.update { it.copy(direccion = nuevaDireccion) }
+    fun onAreaInteresCambiada(nuevaArea: String) {
+        _uiState.update {
+            it.copy(
+                areaInteres = nuevaArea,
+                errores = it.errores.copy(areaInteres = null)
+            )
+        }
     }
 
-    fun onAceptaTerminosChange(aceptado: Boolean) {
-        _estado.update { it.copy(aceptaTerminos = aceptado) }
+    fun onTerminosCambiados(aceptado: Boolean) {
+        _uiState.update {
+            it.copy(
+                aceptaTerminos = aceptado,
+                errores = it.errores.copy(aceptaTerminos = null)
+            )
+        }
     }
 
-    // Función validación del Formulario
     fun validarFormulario(): Boolean {
-        val current = _estado.value
+        val estado = _uiState.value
+        var esValido = true
 
-        val errorNombre = if (current.nombre.isBlank()) "El nombre no puede estar vacio" else null
-        val errorCorreo = if (!current.correo.contains(("@")) || !current.correo.contains(".")) {
-            "Ingresa un correo válido (ej: usuario@dominio.com)"
-        } else {
-            null
+        var errNombre: String? = null
+        var errCorreo: String? = null
+        var errOrg: String? = null
+        var errArea: String? = null
+        var errTerminos: String? = null
+
+        if (estado.nombre.isBlank()) {
+            errNombre = "El nombre no puede estar vacío"
+            esValido = false
         }
-        val errorClave = when {
-            current.clave.isBlank() -> "La contraseña no puede estar vacía"
-            current.clave.length < 6 -> "La contraseña debe tener al menos 6 caracteres"
-            !current.clave.any { it.isDigit() } -> "La contraseña debe tener al menos un número"
-            else -> null
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(estado.correo).matches()) {
+            errCorreo = "Ingresa un correo institucional válido"
+            esValido = false
         }
-        val errorDireccion = if (current.direccion.isBlank()) "La dirección no puede estar vacia" else null
-        val errorTerminos = if (!current.aceptaTerminos) "Debe aceptar los términos y condiciones" else null
 
-        val nuevosErrores = FormularioErrores(
-            nombre = errorNombre,
-            correo = errorCorreo,
-            clave = errorClave,
-            direccion = errorDireccion,
-            aceptaTerminos = errorTerminos
-        )
+        if (estado.organizacion.isBlank()) {
+            errOrg = "Indica tu institución o empresa"
+            esValido = false
+        }
 
-        // Actualizamos lo errores dentro del estado
-        _estado.update { it.copy(errores = nuevosErrores) }
+        if (estado.areaInteres.isBlank()) {
+            errArea = "Especifica el área I+D de interés"
+            esValido = false
+        }
 
-        // Si todos los errores son nulos, el formulario es valido
-        return errorNombre == null &&
-                errorCorreo == null &&
-                errorClave == null &&
-                errorDireccion == null &&
-                errorTerminos == null
+        if (!estado.aceptaTerminos) {
+            errTerminos = "Debe aceptar las políticas de colaboración"
+            esValido = false
+        }
+
+        _uiState.update {
+            it.copy(
+                errores = FormularioErrores(
+                    nombre = errNombre,
+                    correo = errCorreo,
+                    organizacion = errOrg,
+                    areaInteres = errArea,
+                    aceptaTerminos = errTerminos
+                )
+            )
+        }
+
+        return esValido
     }
 
-    // Funciones para reiniciar el formulario de ser necesario
-    fun limpiarFormulario() {
-        _estado.value = FormularioUiState()
-    }
 }
 

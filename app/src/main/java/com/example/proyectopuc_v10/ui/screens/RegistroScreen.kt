@@ -1,112 +1,114 @@
 package com.example.proyectopuc_v10.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectopuc_v10.ui.components.AceptarTerminos
-import com.example.proyectopuc_v10.ui.components.CampoTexto
+import com.example.proyectopuc_v10.ui.components.CampoText
 import com.example.proyectopuc_v10.viewmodel.UsuarioViewModel
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistroScreen(
-    viewModel: UsuarioViewModel,
-    onNavegarResumen: () -> Unit
+    viewModel: UsuarioViewModel = viewModel(),
+    onSolicitudExitosa: () -> Unit = {},
+    onVolver: () -> Unit = {}
 ) {
-    val estado by viewModel.estado.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope ()
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) { innerPadding ->
+        topBar = {
+            TopAppBar(
+                title = { Text("CIM UC - Solicitud de Contacto") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        }
+    ) { innerPading ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPading)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Registro de Usuario",
-                style = MaterialTheme.typography.headlineMedium
+                text = "Formulario de Vinculación Institucional",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
-            // Campos reutilizados conectados al ViweModel
-            CampoTexto(
-                valor = estado.nombre,
-                onValueChange = viewModel::onNombreChange,
-                label = "Nombre de usuario",
-                error = estado.errores.nombre
+            Text(
+                text = "Ingresa tus datos para coordinar oportunidades de colaboración o proyectos I+D con el Centro.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            CampoTexto(
-                valor =  estado.correo,
-                onValueChange = viewModel::onCorreoChange,
-                label = "Correo electrónico",
-                error = estado.errores.correo
+            Spacer(modifier = Modifier.height(8.dp))
+
+            CampoText(
+                value = uiState.nombre,
+                onValueChange = { viewModel.onNombreCambiado(it) },
+                label = "Nombre Completo",
+                errorMessage = uiState.errores.nombre
             )
 
-            CampoTexto(
-                valor = estado.clave,
-                onValueChange = viewModel::onClaveChange,
-                label = "Contraseña",
-                esPassword = true,
-                error = estado.errores.clave
+            CampoText(
+                value = uiState.correo,
+                onValueChange = { viewModel.onCorreoCambiado(it) },
+                label = "Correo Institucional",
+                errorMessage = uiState.errores.correo
             )
 
-            CampoTexto(
-                valor = estado.direccion,
-                onValueChange = viewModel::onDireccionChange,
-                label = "Dirección",
-                error = estado.errores.direccion
+            CampoText(
+                value = uiState.organizacion,
+                onValueChange = { viewModel.onOrganizacionCambiada(it) },
+                label = "Empresa / Universidad / Institución",
+                errorMessage = uiState.errores.organizacion
+            )
+
+            CampoText(
+                value = uiState.areaInteres,
+                onValueChange = { viewModel.onAreaInteresCambiada(it) },
+                label = "Área I´D de Interés (Ej: Estructura, Normativa)",
+                errorMessage = uiState.errores.areaInteres
             )
 
             AceptarTerminos(
-                aceptado = estado.aceptaTerminos,
-                onCheckedChange = viewModel::onAceptaTerminosChange,
-                error = estado.errores.aceptaTerminos
+                checked = uiState.aceptaTerminos,
+                onCheckedChange = { viewModel.onTerminosCambiados(it) },
+                errorMessage = uiState.errores.aceptaTerminos
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de Envio con validación y Snackbar
             Button(
                 onClick = {
                     if (viewModel.validarFormulario()) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("¡Formulario válido! Redirigiendo...")
-                        }
-                        onNavegarResumen()
-                    } else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Por favor, corrige los errores señalados.")
-                        }
+                        onSolicitudExitosa()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Registrar")
+                Text("Enviar Solicitud")
+            }
+
+            OutlinedButton(
+                onClick = onVolver,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Volver al Menú Principal")
             }
         }
     }

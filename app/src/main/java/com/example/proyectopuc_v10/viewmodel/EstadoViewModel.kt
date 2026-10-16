@@ -1,4 +1,4 @@
-package com.example.proyectopuc_v10.model
+package com.example.proyectopuc_v10.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

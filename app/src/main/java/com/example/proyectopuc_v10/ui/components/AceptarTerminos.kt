@@ -1,5 +1,6 @@
 package com.example.proyectopuc_v10.ui.components
 
+import android.os.Message
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,9 +16,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AceptarTerminos(
-    aceptado: Boolean,
+    checked: Boolean,
+    //aceptado: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    error: String? =  null,
+    errorMessage: String? =  null,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -25,14 +27,16 @@ fun AceptarTerminos(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
-                checked = aceptado,
+                checked = checked,
                 onCheckedChange = onCheckedChange
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Acepto los términos y condiciones ")
+            Text(text = "Acepto las políticas y términos de colaboración CIM UC",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
-        error?.let {
+        errorMessage?.let {
             Text(
                 text = it,
                 color = MaterialTheme.colorScheme.error,

@@ -8,24 +8,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-
 @Composable
-fun CampoTexto(
-    valor: String,
+fun CampoText(
+    value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    error: String? = null,
+    errorMessage: String? = null,
     esPassword: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
-        value = valor,
+        value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        isError = error != null,
+        isError = errorMessage != null,
         visualTransformation = if (esPassword) PasswordVisualTransformation() else VisualTransformation.None,
         supportingText = {
-            error?.let {
+            errorMessage?.let {
                 Text(
                     text = it,
                     color = MaterialTheme.colorScheme.error
