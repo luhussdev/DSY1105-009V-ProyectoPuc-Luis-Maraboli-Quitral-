@@ -24,7 +24,8 @@ fun PantallaPrincipal(
     estadoViewModel: EstadoViewModel = viewModel(),
     proyectoViewModel: ProyectoViewModel = viewModel(),
     onIrASolicitud: () -> Unit = {},
-    onIrAPerfil: () -> Unit = {}
+    onIrAPerfil: () -> Unit = {},
+    onVerDetalle: (Int) -> Unit = {}
 ) {
     // Estados (DataStore y Animaciones)
     val estado = estadoViewModel.activo.collectAsState()
@@ -91,7 +92,10 @@ fun PantallaPrincipal(
                     modifier = Modifier.weight(1f)
                 ) {
                     items(proyectos) { proyecto ->
-                        TarjetaProyecto(proyecto = proyecto)
+                        TarjetaProyecto(
+                            proyecto = proyecto,
+                            onClick = { onVerDetalle(proyecto.id) }
+                            )
                     }
                 }
 
