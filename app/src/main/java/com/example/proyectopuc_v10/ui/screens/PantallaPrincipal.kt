@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectopuc_v10.ui.components.TarjetaProyecto
@@ -21,12 +22,26 @@ import com.example.proyectopuc_v10.viewmodel.ProyectoViewModel
 @Composable
 fun PantallaPrincipal(
     modifier: Modifier = Modifier,
-    estadoViewModel: EstadoViewModel = viewModel(),
-    proyectoViewModel: ProyectoViewModel = viewModel(),
+    //estadoViewModel: EstadoViewModel = viewModel(),
+    //proyectoViewModel: ProyectoViewModel = viewModel(),
     onIrASolicitud: () -> Unit = {},
     onIrAPerfil: () -> Unit = {},
     onVerDetalle: (Int) -> Unit = {}
 ) {
+    /*
+    // Estados (DataStore y Animaciones)
+    val estado = estadoViewModel.activo.collectAsState()
+    val mostrarMensaje = estadoViewModel.mostrarMensaje.collectAsState()
+     */
+
+    val context = LocalContext.current
+    val estadoViewModel: EstadoViewModel = viewModel(
+        factory = androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.getInstance(
+            context.applicationContext as android.app.Application
+        )
+    )
+    val proyectoViewModel: ProyectoViewModel = viewModel()
+
     // Estados (DataStore y Animaciones)
     val estado = estadoViewModel.activo.collectAsState()
     val mostrarMensaje = estadoViewModel.mostrarMensaje.collectAsState()
