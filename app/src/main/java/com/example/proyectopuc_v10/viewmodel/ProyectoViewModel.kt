@@ -1,6 +1,5 @@
 package com.example.proyectopuc_v10.viewmodel
 
-import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import com.example.proyectopuc_v10.data.ProyectoRepository
 import com.example.proyectopuc_v10.model.ProyectoCim

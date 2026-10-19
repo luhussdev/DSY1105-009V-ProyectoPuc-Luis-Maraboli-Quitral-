@@ -27,7 +27,7 @@ fun PerfilScreen(
     var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
     // Launcher para Galeria (GetContent)
-    var galeriaLauncher = rememberLauncherForActivityResult(
+    val galeriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         if (uri != null) {
@@ -67,7 +67,7 @@ fun PerfilScreen(
 
             // Botón para Galeria
             Button(
-                onClick = { galeriaLauncher.launch("imagen/*") },
+                onClick = { galeriaLauncher.launch("image/*") },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Seleccionar desde Galeria")

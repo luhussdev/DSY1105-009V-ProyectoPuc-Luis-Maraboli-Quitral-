@@ -37,7 +37,7 @@ fun PantallaPrincipal(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
-                title = { Text("CIM UC . Innovación en Madera") },
+                title = { Text("CIM UC - Innovación en Madera") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer

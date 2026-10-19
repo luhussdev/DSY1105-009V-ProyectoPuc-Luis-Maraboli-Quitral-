@@ -42,6 +42,15 @@ fun TarjetaProyecto(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
+                text = proyecto.titulo,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
                 text = proyecto.descripcion,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -67,3 +76,4 @@ fun TarjetaProyecto(
         }
     }
 }
+

@@ -33,11 +33,11 @@ fun RegistroScreen(
                 )
             )
         }
-    ) { innerPading ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPading)
+                .padding(innerPadding)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -81,7 +81,7 @@ fun RegistroScreen(
             CampoText(
                 value = uiState.areaInteres,
                 onValueChange = { viewModel.onAreaInteresCambiada(it) },
-                label = "Área I´D de Interés (Ej: Estructura, Normativa)",
+                label = "Área I+D de Interés (Ej: Estructura, Normativa)",
                 errorMessage = uiState.errores.areaInteres
             )
 
