@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectopuc_v10.ui.theme.AzulInstitucional
+import com.example.proyectopuc_v10.ui.theme.Blanco
 import com.example.proyectopuc_v10.viewmodel.ProyectoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,8 +28,8 @@ fun DetalleProyectoScreen(
             TopAppBar(
                 title = { Text("CIM UC - Detalle I+D" )},
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = AzulInstitucional,
+                    titleContentColor = Blanco
                 )
             )
         }
