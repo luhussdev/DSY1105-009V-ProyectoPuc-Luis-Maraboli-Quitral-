@@ -1,13 +1,17 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.example.proyectopuc_v10"
+    /*
     compileSdk {
         version = release(37)
     }
+     */
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.example.proyectopuc_v10"
@@ -21,9 +25,11 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -55,4 +61,10 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.2.1")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("androidx.compose.material:material-icons-extended")
+
+    // Room Database
+    val roomVersion = "2.8.5"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
 }

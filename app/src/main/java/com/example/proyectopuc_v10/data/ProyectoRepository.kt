@@ -1,5 +1,45 @@
 package com.example.proyectopuc_v10.data
 
+import com.example.proyectopuc_v10.data.local.ProyectoDao
+import com.example.proyectopuc_v10.data.local.ProyectoEntity
+import kotlinx.coroutines.flow.Flow
+
+
+class ProyectoRepository(private val proyectoDao: ProyectoDao) {
+
+    // Flujo reactivo con la lista de proyectos en la base de datos SQLite
+    val todosLosProyectos: Flow<List<ProyectoEntity>> = proyectoDao.obtenerTodosLosProyectos()
+
+    suspend fun obtenerProyectosPorId(id: Int): ProyectoEntity? {
+        return proyectoDao.obtenerProyectoPorId(id)
+    }
+
+    suspend fun agregarProyecto(
+        titulo: String,
+        areaTematica: String,
+        descripcion: String,
+        liderInvestigacion: String,
+        anio: Int
+    ) {
+        val nuevoProyecto = ProyectoEntity(
+            titulo = titulo,
+            areaTematica = areaTematica,
+            descripcion = descripcion,
+            liderInvestigacion = liderInvestigacion,
+            anio = anio
+        )
+        proyectoDao.insertarProyecto(nuevoProyecto)
+    }
+
+    suspend fun eliminarProyecto(proyecto: ProyectoEntity) {
+        proyectoDao.eliminarProyecto(proyecto)
+    }
+}
+
+
+
+
+/*
 import com.example.proyectopuc_v10.model.ProyectoCim
 
 object ProyectoRepository {
@@ -32,3 +72,4 @@ object ProyectoRepository {
         )
     }
 }
+ */
