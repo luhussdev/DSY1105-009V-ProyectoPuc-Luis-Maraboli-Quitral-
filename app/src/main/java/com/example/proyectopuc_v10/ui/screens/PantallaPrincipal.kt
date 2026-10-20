@@ -17,6 +17,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectopuc_v10.ui.components.TarjetaProyecto
 import com.example.proyectopuc_v10.viewmodel.EstadoViewModel
 import com.example.proyectopuc_v10.viewmodel.ProyectoViewModel
+import com.example.proyectopuc_v10.ui.theme.AzulInstitucional
+import com.example.proyectopuc_v10.ui.theme.Blanco
 
 
 @Composable
@@ -55,8 +57,8 @@ fun PantallaPrincipal(
             TopAppBar(
                 title = { Text("CIM UC - Innovación en Madera") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = AzulInstitucional,
+                    titleContentColor = Blanco
                 )
             )
         }
