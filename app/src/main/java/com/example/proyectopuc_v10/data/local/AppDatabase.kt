@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Database(entities = [ProyectoEntity::class, UsuarioEntity::class], version = 2, exportSchema = false)
@@ -35,11 +36,16 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private class AppDatabaseCallback : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
                 INSTANCE?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        precargarDatosIniciales(database.proyectoDao())
+                        val dao = database.proyectoDao()
+                        // Si la tabla está vacía tras migrar, repoblamos los datos
+                        val proyectosExistentes = dao.obtenerTodosLosProyectos().firstOrNull()
+                        if (proyectosExistentes.isNullOrEmpty()) {
+                            precargarDatosIniciales(dao)
+                        }
                     }
                 }
             }
