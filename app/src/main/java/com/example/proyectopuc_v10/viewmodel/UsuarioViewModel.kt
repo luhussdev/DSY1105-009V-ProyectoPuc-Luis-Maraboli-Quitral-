@@ -1,14 +1,22 @@
 package com.example.proyectopuc_v10.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.proyectopuc_v10.data.local.AppDatabase
+import com.example.proyectopuc_v10.data.local.UsuarioEntity
 import com.example.proyectopuc_v10.model.FormularioErrores
 import com.example.proyectopuc_v10.model.FormularioUiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class UsuarioViewModel : ViewModel() {
+class UsuarioViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val usurioDao = AppDatabase.obtenerBaseDatos(application).UsuarioDao()
 
     // Estado privado mutable
     private val _uiState = MutableStateFlow(FormularioUiState())
@@ -105,8 +113,24 @@ class UsuarioViewModel : ViewModel() {
                 )
             )
         }
+        if (esValido) {
+            guardarUsuarioEnRoom(estado)
+        }
 
         return esValido
+    }
+
+    private fun guardarUsuarioEnRoom(estado: FormularioUiState) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val nuevoUsuario = UsuarioEntity(
+                nombre = estado.nombre,
+                correo = estado.correo,
+                organizacion = estado.organizacion,
+                areaInteres = estado.areaInteres,
+                aceptaTerminos = estado.aceptaTerminos
+            )
+            usurioDao.guardarUsuario(nuevoUsuario)
+        }
     }
 
 }
