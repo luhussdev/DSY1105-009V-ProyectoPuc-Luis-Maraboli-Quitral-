@@ -17,4 +17,5 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios")
     fun ObtenerTodosLosUsuarios(): Flow<List<UsuarioEntity>>
+
 }

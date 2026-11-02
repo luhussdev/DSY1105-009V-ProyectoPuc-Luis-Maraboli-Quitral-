@@ -99,6 +99,7 @@ fun DetalleProyectoScreen(
                 )
             }
 
+
             Spacer(modifier = Modifier.weight(1f))
 
             Button(

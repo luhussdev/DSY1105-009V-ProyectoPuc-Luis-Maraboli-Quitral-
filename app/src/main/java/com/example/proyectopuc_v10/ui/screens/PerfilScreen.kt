@@ -6,6 +6,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -70,18 +73,25 @@ fun PerfilScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de imagen
+            // Botón de selección de imagen actualizados con íconos
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Botón icono "Galeria"
                 Button(
                     onClick = { galeriaLauncher.launch("image/*") },
                     modifier = Modifier.weight(1f)
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.PhotoLibrary,
+                        contentDescription = "Galeria"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text("Galeria")
                 }
 
+                // Botón icono "Cámara"
                 OutlinedButton(
                     onClick = {
                         val uri = viewModel.crearUriTemporal(context)
@@ -90,6 +100,11 @@ fun PerfilScreen(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.PhotoCamera,
+                        contentDescription = "Camara"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text("Cámara")
                 }
             }
@@ -136,6 +151,7 @@ fun PerfilScreen(
             TextButton(onClick = onVolver) {
                 Text("Volver")
             }
+
         }
     }
 }
