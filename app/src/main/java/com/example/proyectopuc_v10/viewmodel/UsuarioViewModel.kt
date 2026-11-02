@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class UsuarioViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val usurioDao = AppDatabase.obtenerBaseDatos(application).UsuarioDao()
+    private val usuarioDao = AppDatabase.obtenerBaseDatos(application).UsuarioDao()
 
     // Estado privado mutable
     private val _uiState = MutableStateFlow(FormularioUiState())
@@ -114,22 +114,28 @@ class UsuarioViewModel(application: Application) : AndroidViewModel(application)
             )
         }
         if (esValido) {
-            guardarUsuarioEnRoom(estado)
+            guardarUsuarioEnRoom(estado.correo, estado.organizacion, estado.areaInteres, false)
         }
 
         return esValido
     }
 
-    private fun guardarUsuarioEnRoom(estado: FormularioUiState) {
+    fun guardarUsuarioEnRoom(
+        correo: String,
+        organizacion: String,
+        areaInteres: String,
+        estaSuscrito: Boolean
+    ){
         viewModelScope.launch(Dispatchers.IO) {
             val nuevoUsuario = UsuarioEntity(
-                nombre = estado.nombre,
-                correo = estado.correo,
-                organizacion = estado.organizacion,
-                areaInteres = estado.areaInteres,
-                aceptaTerminos = estado.aceptaTerminos
+                nombre = "Usuario Registrado",
+                correo = correo,
+                organizacion = organizacion,
+                areaInteres = areaInteres,
+                aceptaTerminos = true,
+                estaSuscrito = estaSuscrito
             )
-            usurioDao.guardarUsuario(nuevoUsuario)
+            usuarioDao.guardarUsuario(nuevoUsuario)
         }
     }
 
