@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
@@ -147,11 +148,15 @@ fun PerfilScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botón para volver a la pantalla anterior
-            TextButton(onClick = onVolver) {
-                Text("Volver")
+            // Botón para volver con destino explicito e ícono
+            OutlinedButton(onClick = onVolver) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Volver"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Volver al Catálogo de Proyectos")
             }
-
         }
     }
 }
