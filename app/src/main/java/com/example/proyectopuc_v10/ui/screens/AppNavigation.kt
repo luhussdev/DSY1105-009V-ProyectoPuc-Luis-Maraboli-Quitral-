@@ -54,10 +54,7 @@ fun AppNavigation() {
         // Formulario de Solicitud / contacto
         composable(Screen.Registro.route) {
             RegistroScreen(
-                viewModel = usuarioViewModel,
-                onSolicitudExitosa = {
-                    navController.navigate(Screen.Resumen.route)
-                },
+                usuarioViewModel = usuarioViewModel,
                 onVolver = {
                     navController.popBackStack()
                 }
