@@ -67,60 +67,68 @@ class UsuarioViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun validarFormulario(): Boolean {
-        val estado = _uiState.value
+    fun validarFormulario(
+        nombre: String,
+        correo: String,
+        organizacion: String,
+        areaInteres: String
+    ): Boolean {
         var esValido = true
 
         var errNombre: String? = null
         var errCorreo: String? = null
         var errOrg: String? = null
         var errArea: String? = null
-        var errTerminos: String? = null
 
-        if (estado.nombre.isBlank()) {
+        // 1. Validación de Nombre (No vacio y mínimo 3 caracteres)
+        if (nombre.trim().isBlank()) {
             errNombre = "El nombre no puede estar vacío"
             esValido = false
-        }
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(estado.correo).matches()) {
-            errCorreo = "Ingresa un correo institucional válido"
+        } else if (nombre.trim().length < 3) {
+            errNombre = "El nombre debe tener al menos 3 caracteres"
             esValido = false
         }
 
-        if (estado.organizacion.isBlank()) {
+        // 2. Validación de Correo (No vacio, contiene '@' y formato estándar)
+        if (correo.trim().isBlank()) {
+            errCorreo = "Ingresa un correo institucional válido"
+            esValido = false
+        } else if (!correo.contains("@") || !android.util.Patterns.EMAIL_ADDRESS.matcher(correo.trim()).matches()) {
+            errCorreo = "Ingresa un correo institucional válido (ej: usuario@dominio.cl)"
+            esValido = false
+        }
+
+        // 3. Validación
+        if (organizacion.trim().isBlank()) {
             errOrg = "Indica tu institución o empresa"
             esValido = false
         }
 
-        if (estado.areaInteres.isBlank()) {
+        // 4. Validación de Área de Interés (No vacio)
+        if (areaInteres.trim().isBlank()) {
             errArea = "Especifica el área I+D de interés"
-            esValido = false
-        }
-
-        if (!estado.aceptaTerminos) {
-            errTerminos = "Debe aceptar las políticas de colaboración"
             esValido = false
         }
 
         _uiState.update {
             it.copy(
+                nombre = nombre,
+                correo = correo,
+                organizacion = organizacion,
+                areaInteres = areaInteres,
                 errores = FormularioErrores(
                     nombre = errNombre,
                     correo = errCorreo,
                     organizacion = errOrg,
-                    areaInteres = errArea,
-                    aceptaTerminos = errTerminos
+                    areaInteres = errArea
                 )
             )
         }
-        if (esValido) {
-            guardarUsuarioEnRoom(estado.correo, estado.organizacion, estado.areaInteres, false)
-        }
-
         return esValido
     }
 
     fun guardarUsuarioEnRoom(
+        nombre: String,
         correo: String,
         organizacion: String,
         areaInteres: String,
@@ -128,10 +136,10 @@ class UsuarioViewModel(application: Application) : AndroidViewModel(application)
     ){
         viewModelScope.launch(Dispatchers.IO) {
             val nuevoUsuario = UsuarioEntity(
-                nombre = "Usuario Registrado",
-                correo = correo,
-                organizacion = organizacion,
-                areaInteres = areaInteres,
+                nombre = nombre.trim(),
+                correo = correo.trim(),
+                organizacion = organizacion.trim(),
+                areaInteres = areaInteres.trim(),
                 aceptaTerminos = true,
                 estaSuscrito = estaSuscrito
             )
