@@ -43,20 +43,28 @@ fun simularEnvioCorreoSuscripcion(context: Context, correoDestino: String) {
         putExtra(Intent.EXTRA_TEXT, cuerpo)
     }
 
-    if (intent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(intent)
-    } else {
+    try {
         context.startActivity(Intent.createChooser(intent, "Enviar correo de prueba con..."))
+    } catch (e: Exception) {
+        android.widget.Toast.makeText(
+            context,
+            "No se encontró un cliente de correo en el dispositivo",
+            android.widget.Toast.LENGTH_SHORT
+        ).show()
     }
 }
 
 @Composable
 fun RegistroScreen(
     usuarioViewModel: UsuarioViewModel = viewModel(),
+    onSolititudExitosa: () -> Unit = {},
     onVolver: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    // 1. Observamos el estado del ViewModel para los mensajes de error
+    val uiState by usuarioViewModel.uiState.collectAsState()
 
+    var nombre by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
     var organizacion by remember { mutableStateOf("") }
     var areaInteres by remember { mutableStateOf("") }
@@ -91,26 +99,66 @@ fun RegistroScreen(
                 style = MaterialTheme.typography.headlineSmall
             )
 
+            // CAMPO: NOMBRE COMPLETO
+            OutlinedTextField(
+                value = nombre,
+                onValueChange = {
+                    nombre = it
+                    usuarioViewModel.onNombreCambiado(it)
+                },
+                label = { Text("Nombre Completo") },
+                isError = uiState.errores.nombre != null,
+                supportingText = {
+                    uiState.errores.nombre?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            // CAMPO: CORREO ELECTRÓNICO
             OutlinedTextField(
                 value = correo,
-                onValueChange = { correo = it },
+                onValueChange = {
+                    correo = it
+                    usuarioViewModel.onNombreCambiado(it)
+                },
                 label = { Text("Correo Electrónico") },
+                isError = uiState.errores.correo != null,
+                supportingText = {
+                    uiState.errores.correo?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
+            // CAMPO: ORGANIZACIÓN / EMPRESA
             OutlinedTextField(
                 value = organizacion,
-                onValueChange = { organizacion = it },
+                onValueChange = {
+                    organizacion = it
+                    usuarioViewModel.onOrganizacionCambiada(it)
+                },
                 label = { Text("Organización / Empresa") },
+                isError = uiState.errores.organizacion != null,
+                supportingText = {
+                    uiState.errores.organizacion?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
+            // CAMPO: ÁREA DE INTERÉS
             OutlinedTextField(
                 value = areaInteres,
-                onValueChange = { areaInteres = it },
+                onValueChange = {
+                    areaInteres = it
+                    usuarioViewModel.onAreaInteresCambiada(it)
+                },
                 label = { Text("Area de Interés") },
+                isError = uiState.errores.areaInteres != null,
+                supportingText = {
+                    uiState.errores.areaInteres?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -135,26 +183,37 @@ fun RegistroScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Deseo suscribirme al boletín mensual de proyectos e investigación I+D del CIM UC",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // BOTÓN REGISTRAR Y DISPARAR INTENT
+            // BOTÓN PRINCIPAL: REGISTRAR
             Button(
                 onClick = {
-                    if (correo.isNotBlank()) {
-                        // 1. Persistir usuario y preferencia
-                        usuarioViewModel.guardarUsuarioEnRoom(correo, organizacion, areaInteres, estaSuscrito)
-
-                        // 2. Disparar el Intent del correo si aceptó suscribirse
+                    // 2. Ejecutar la validación completa
+                    val esValido = usuarioViewModel.validarFormulario(
+                        nombre = nombre,
+                        correo = correo,
+                        organizacion = organizacion,
+                        areaInteres = areaInteres
+                    )
+                    if (esValido) {
+                        // 3. Pasar 'nombre' como primer parámetro al guardar en Room
+                        usuarioViewModel.guardarUsuarioEnRoom(
+                            nombre = nombre,
+                            correo = correo,
+                            organizacion = organizacion,
+                            areaInteres = areaInteres,
+                            estaSuscrito = estaSuscrito
+                        )
                         if (estaSuscrito) {
                             simularEnvioCorreoSuscripcion(context, correo)
                         }
-
-                        onVolver()
+                        onSolititudExitosa()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -167,7 +226,7 @@ fun RegistroScreen(
                 Text("Registrar Usuario")
             }
 
-            // NAVEGACIÓN DE REGRESO ECPLÍCITA
+            // BOTÓN SECUNDARIO: VOLVER
             OutlinedButton(
                 onClick = onVolver,
                 modifier = Modifier.fillMaxWidth()
