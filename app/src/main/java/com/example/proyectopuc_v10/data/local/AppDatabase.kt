@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-@Database(entities = [ProyectoEntity::class, UsuarioEntity::class], version = 3, exportSchema = false)
+@Database(entities = [ProyectoEntity::class, UsuarioEntity::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun proyectoDao(): ProyectoDao
@@ -52,26 +52,26 @@ abstract class AppDatabase : RoomDatabase() {
             suspend fun precargarDatosIniciales(dao: ProyectoDao) {
                 val datosIniciales = listOf(
                     ProyectoEntity(
-                        titulo = "Torre Peñuelas",
-                        areaTematica = "Construcción en Alturta",
-                        descripcion = "Primer edificio en madera laminada de 6 pisos en Chile para validar eficiencia térmica y acústica.",
+                        titulo = "Juan José Ugarte asume como rector de Duoc UC",
+                        areaTematica = "Institucional y Liderazgo",
+                        descripcion = "Tras liderar el CIM UC durante 16 años y presidir CORMA, el arquitecto y académico FADEU UC asume la rectoría de Duoc UC. Su gestión impulsará la formación técnico-profesional orientada a la innovación en edificación sustentable.",
                         liderInvestigacion = "Dr. Juan José Ugarte",
-                        anio = 2021
+                        anio = 2026
                     ),
                     ProyectoEntity(
-                        titulo = "Vivienda Social Industrializada",
-                        areaTematica = "Hábitat Sustentable",
-                        descripcion = "Sistema modular de rápida construcción con altos estándares energéticos para emergencias.",
-                        liderInvestigacion = "Arq. Felipe Victorero",
-                        anio = 2023
+                        titulo = "Ciclo de Webinars: Normativas para Construir en Madera",
+                        areaTematica = "Transferencia y Normativa",
+                        descripcion = "Exitoso ciclo técnico de 5 sesiones junto a CENAMAD y Madera21 que convocó a más de 700 asistentes en vivo. Se abordaron actualizaciones clave en diseño sísmico (NCh433), durabilidad (NCh789/NCh819), desempeño térmico, CLT y seguridad contra incendios.",
+                        liderInvestigacion = "Sebastián Berwart & Fabiana Lorca",
+                        anio = 2026
                     ),
                     ProyectoEntity(
-                        titulo = "Protección Retardante de Fuego",
-                        areaTematica = "Biomateriales",
-                        descripcion = "Desarrollo de recubrimientos no tóxicos basados en lignina para mejorar resistencia al fuego.",
-                        liderInvestigacion = "Dra. María Carmen Mingo",
-                        anio = 2024
-                    )
+                        titulo = "Ditec y CIM UC capacitan a equipos técnicos en CLT",
+                        areaTematica = "Capacitación y Normativa",
+                        descripcion = "Ciclo 2026 de capacitaciones junto a Ditec Minvu para la incorporación de la Madera Contralaminada (CLT) en viviendas. Incluye transferencias en cálculo estructural, diseño sísmico y montaje práctico con el sistema Kits CLT.",
+                        liderInvestigacion = "Francisca Lorenzini & Diego Valdivieso",
+                        anio = 2026
+                    ),
                 )
                 datosIniciales.forEach { dao.insertarProyecto(it) }
             }
