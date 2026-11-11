@@ -17,39 +17,55 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectopuc_v10.viewmodel.UsuarioViewModel
+import android.widget.Toast
 
 
 // Función para invocar el Intent del correo
-fun simularEnvioCorreoSuscripcion(context: Context, correoDestino: String) {
+fun simularEnvioCorreoSuscripcion(context: Context, correoUsuario: String) {
+    // 1. Inserte aquí su correo personal para recibir la alerta
+    val miCorreoPersonal = "barenas7719@gmail.com"
+
     val asunto = "[CIM UC] Confirmación de suscripción al Boletin I+D"
     val cuerpo = """
         ¡Hola!
         
-        Gracias por suscribirte al boletín de novedades y proyectos I+D del Centro UC de Innovación en Madera (CIM UC).
+        Gracias por suscribirte al boletín de novedades y proyectos I+D del Centro UC de Innovación en Madera (CIM UC). Tu registro desde la aplicación móvil se ha completado con éxito.
         
         A partir de este momento recibirás información sobre:
-        - Proyectos de investigación aplicada.
-        - Transferencia tecnológica y construcción en madera.
-        - Publicaciones y próximos eventos.
+        • Proyectos de investigación aplicada.
+        • Transferencia tecnológica y construcción en madera.
+        • Publicaciones y próximos eventos.
         
+        Detalles de tu suscripción:
+        
+        • Correo registrado: $correoUsuario
+        • Estado: Suscripción Activa
+        • Fecha de registro: Noviembre 2026
+        
+        Esta es una notificación automática generada por ProyectoPUC_V10.
         Atentamente,
-        Equipo CIM UC
+        
+        Equipo de Desarrollo VcM - CIM UC
     """.trimIndent()
 
+    // 2. Construcción del Intent nativo tipo ACTION_SENDTO (mailto:)
     val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = Uri.parse("mailto:")
-        putExtra(Intent.EXTRA_EMAIL, arrayOf(correoDestino))
+        data = Uri.parse("mailto:$miCorreoPersonal")
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(miCorreoPersonal))
         putExtra(Intent.EXTRA_SUBJECT, asunto)
         putExtra(Intent.EXTRA_TEXT, cuerpo)
     }
 
-    try {
-        context.startActivity(Intent.createChooser(intent, "Enviar correo de prueba con..."))
+    // 3. Manejo seguro de la llamada al sistema
+    try{
+        val chooserIntent = Intent.createChooser(intent, "Confirmar suscripción con....")
+        chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooserIntent)
     } catch (e: Exception) {
-        android.widget.Toast.makeText(
+        Toast.makeText(
             context,
-            "No se encontró un cliente de correo en el dispositivo",
-            android.widget.Toast.LENGTH_SHORT
+            "No se encontró una aplicación de correo instalada.",
+            Toast.LENGTH_LONG
         ).show()
     }
 }
@@ -57,7 +73,7 @@ fun simularEnvioCorreoSuscripcion(context: Context, correoDestino: String) {
 @Composable
 fun RegistroScreen(
     usuarioViewModel: UsuarioViewModel = viewModel(),
-    onSolititudExitosa: () -> Unit = {},
+    onSolicitudExitosa: () -> Unit = {},
     onVolver: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -120,7 +136,7 @@ fun RegistroScreen(
                 value = correo,
                 onValueChange = {
                     correo = it
-                    usuarioViewModel.onNombreCambiado(it)
+                    usuarioViewModel.onCorreoCambiado(it)
                 },
                 label = { Text("Correo Electrónico") },
                 isError = uiState.errores.correo != null,
@@ -213,7 +229,7 @@ fun RegistroScreen(
                         if (estaSuscrito) {
                             simularEnvioCorreoSuscripcion(context, correo)
                         }
-                        onSolititudExitosa()
+                        onSolicitudExitosa()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
