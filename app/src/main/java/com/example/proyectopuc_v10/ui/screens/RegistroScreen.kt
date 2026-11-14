@@ -3,6 +3,7 @@ package com.example.proyectopuc_v10.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,12 +18,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectopuc_v10.viewmodel.UsuarioViewModel
-import android.widget.Toast
-
 
 // Función para invocar el Intent del correo
 fun simularEnvioCorreoSuscripcion(context: Context, correoUsuario: String) {
-    // 1. Inserte aquí su correo personal para recibir la alerta
     val miCorreoPersonal = "barenas7719@gmail.com"
 
     val asunto = "[CIM UC] Confirmación de suscripción al Boletin I+D"
@@ -32,15 +30,14 @@ fun simularEnvioCorreoSuscripcion(context: Context, correoUsuario: String) {
         Gracias por suscribirte al boletín de novedades y proyectos I+D del Centro UC de Innovación en Madera (CIM UC). Tu registro desde la aplicación móvil se ha completado con éxito.
         
         A partir de este momento recibirás información sobre:
-        • Proyectos de investigación aplicada.
-        • Transferencia tecnológica y construcción en madera.
-        • Publicaciones y próximos eventos.
+        - Proyectos de investigación aplicada.
+        - Transferencia tecnológica y construcción en madera.
+        - Publicaciones y próximos eventos.
         
         Detalles de tu suscripción:
-        
-        • Correo registrado: $correoUsuario
-        • Estado: Suscripción Activa
-        • Fecha de registro: Noviembre 2026
+        - Correo registrado: $correoUsuario
+        - Estado: Suscripción Activa
+        - Fecha de registro: Noviembre 2026
         
         Esta es una notificación automática generada por ProyectoPUC_V10.
         Atentamente,
@@ -48,7 +45,6 @@ fun simularEnvioCorreoSuscripcion(context: Context, correoUsuario: String) {
         Equipo de Desarrollo VcM - CIM UC
     """.trimIndent()
 
-    // 2. Construcción del Intent nativo tipo ACTION_SENDTO (mailto:)
     val intent = Intent(Intent.ACTION_SENDTO).apply {
         data = Uri.parse("mailto:$miCorreoPersonal")
         putExtra(Intent.EXTRA_EMAIL, arrayOf(miCorreoPersonal))
@@ -56,8 +52,7 @@ fun simularEnvioCorreoSuscripcion(context: Context, correoUsuario: String) {
         putExtra(Intent.EXTRA_TEXT, cuerpo)
     }
 
-    // 3. Manejo seguro de la llamada al sistema
-    try{
+    try {
         val chooserIntent = Intent.createChooser(intent, "Confirmar suscripción con....")
         chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(chooserIntent)
@@ -77,7 +72,6 @@ fun RegistroScreen(
     onVolver: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    // 1. Observamos el estado del ViewModel para los mensajes de error
     val uiState by usuarioViewModel.uiState.collectAsState()
 
     var nombre by remember { mutableStateOf("") }
@@ -85,6 +79,9 @@ fun RegistroScreen(
     var organizacion by remember { mutableStateOf("") }
     var areaInteres by remember { mutableStateOf("") }
     var estaSuscrito by remember { mutableStateOf(false) }
+
+    // Estado para controlar la ventana emergente de registro exitoso
+    var mostrarAlertaExito by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -170,7 +167,7 @@ fun RegistroScreen(
                     areaInteres = it
                     usuarioViewModel.onAreaInteresCambiada(it)
                 },
-                label = { Text("Area de Interés") },
+                label = { Text("Área de Interés") },
                 isError = uiState.errores.areaInteres != null,
                 supportingText = {
                     uiState.errores.areaInteres?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -210,7 +207,6 @@ fun RegistroScreen(
             // BOTÓN PRINCIPAL: REGISTRAR
             Button(
                 onClick = {
-                    // 2. Ejecutar la validación completa
                     val esValido = usuarioViewModel.validarFormulario(
                         nombre = nombre,
                         correo = correo,
@@ -218,7 +214,6 @@ fun RegistroScreen(
                         areaInteres = areaInteres
                     )
                     if (esValido) {
-                        // 3. Pasar 'nombre' como primer parámetro al guardar en Room
                         usuarioViewModel.guardarUsuarioEnRoom(
                             nombre = nombre,
                             correo = correo,
@@ -226,10 +221,8 @@ fun RegistroScreen(
                             areaInteres = areaInteres,
                             estaSuscrito = estaSuscrito
                         )
-                        if (estaSuscrito) {
-                            simularEnvioCorreoSuscripcion(context, correo)
-                        }
-                        onSolicitudExitosa()
+                        // Activamos el diálogo de confirmación en pantalla
+                        mostrarAlertaExito = true
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -254,6 +247,38 @@ fun RegistroScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Volver al Catálogo de Proyectos")
             }
+        }
+
+        // DIÁLOGO DE CONFIRMACIÓN DE REGISTRO EXITOSO
+        if (mostrarAlertaExito) {
+            AlertDialog(
+                onDismissRequest = {
+                    mostrarAlertaExito = false
+                    onSolicitudExitosa()
+                },
+                title = { Text("¡Usuario Registrado!") },
+                text = {
+                    Text("Los datos de $nombre se han guardado correctamente en la base de datos local del CIM UC.")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            mostrarAlertaExito = false
+                            Toast.makeText(
+                                context,
+                                "Registro confirmado en Room",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            if (estaSuscrito) {
+                                simularEnvioCorreoSuscripcion(context, correo)
+                            }
+                            onSolicitudExitosa()
+                        }
+                    ) {
+                        Text("Aceptar")
+                    }
+                }
+            )
         }
     }
 }
