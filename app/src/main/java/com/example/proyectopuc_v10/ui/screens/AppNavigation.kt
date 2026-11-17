@@ -9,9 +9,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.proyectopuc_v10.viewmodel.UsuarioViewModel
 
-// Definicion de rutas utlizando Sealed Class
+// Definición de rutas utilizando Sealed Class
 sealed class Screen(val route: String) {
+    object Inicio : Screen("inicio")
     object Principal : Screen("principal")
+    object Foro : Screen("foro")
     object Registro : Screen("registro")
     object Resumen : Screen("resumen")
     object Perfil : Screen("perfil")
@@ -23,19 +25,35 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    // Se comparte la misma instancia con ViewModel entre pantallas
     val usuarioViewModel: UsuarioViewModel = viewModel()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Principal.route
+        startDestination = Screen.Inicio.route
     ) {
-        // Pantalla Principal (Catálogo I+D + DataStore)
+        // Nueva Pantalla de Bienvenida / Hub de Navegación
+        composable(Screen.Inicio.route) {
+            InicioScreen(
+                onIrAProyectos = { navController.navigate(Screen.Principal.route) },
+                onIrAForo = { navController.navigate(Screen.Foro.route) },
+                onIrAContacto = { navController.navigate(Screen.Registro.route) },
+                onIrAPerfil = { navController.navigate(Screen.Perfil.route) }
+            )
+        }
+
+        // Catálogo de Proyectos I+D + DataStore
         composable(Screen.Principal.route) {
             PantallaPrincipal(
-                onIrASolicitud = {navController.navigate(Screen.Registro.route) },
-                onIrAPerfil = {navController.navigate(Screen.Perfil.route) },
+                onIrASolicitud = { navController.navigate(Screen.Registro.route) },
+                onIrAPerfil = { navController.navigate(Screen.Perfil.route) },
                 onVerDetalle = { id -> navController.navigate(Screen.Detalle.crearRuta(id)) }
+            )
+        }
+
+        // Foro Técnico (CRUD API REST con Retrofit + Logs)
+        composable(Screen.Foro.route) {
+            PostScreen(
+                onVolver = { navController.popBackStack() }
             )
         }
 
@@ -51,13 +69,11 @@ fun AppNavigation() {
             )
         }
 
-        // Formulario de Solicitud / contacto
+        // Formulario de Solicitud / Contacto
         composable(Screen.Registro.route) {
             RegistroScreen(
                 usuarioViewModel = usuarioViewModel,
-                onVolver = {
-                    navController.popBackStack()
-                }
+                onVolver = { navController.popBackStack() }
             )
         }
 
@@ -66,8 +82,8 @@ fun AppNavigation() {
             ResumenScreen(
                 viewModel = usuarioViewModel,
                 onVolverInicio = {
-                    navController.navigate(Screen.Principal.route) {
-                        popUpTo(Screen.Principal.route) { inclusive = true }
+                    navController.navigate(Screen.Inicio.route) {
+                        popUpTo(Screen.Inicio.route) { inclusive = true }
                     }
                 },
                 onIrAPerfil = {
