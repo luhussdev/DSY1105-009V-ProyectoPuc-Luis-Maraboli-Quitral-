@@ -17,8 +17,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ProyectoPuc_V10Theme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    //AppNavigation()
-                    PostScreen()
+                    AppNavigation()
+                    //PostScreen()
                 }
             }
         }
