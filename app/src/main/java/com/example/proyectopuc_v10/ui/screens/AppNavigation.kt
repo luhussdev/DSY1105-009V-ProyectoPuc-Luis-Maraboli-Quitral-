@@ -7,16 +7,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.proyectopuc_v10.viewmodel.UsuarioViewModel
+import com.example.proyectopuc_v10.viewmodel.AuthViewModel
 
-// Definición de rutas utilizando Sealed Class
 sealed class Screen(val route: String) {
-    object Inicio : Screen("inicio")
-    object Principal : Screen("principal")
-    object Foro : Screen("foro")
-    object Registro : Screen("registro")
-    object Resumen : Screen("resumen")
-    object Perfil : Screen("perfil")
+    object Login : Screen("login")                // Pantalla 1
+    object Inicio : Screen("inicio")              // Pantalla 2 (Dashboard sesión iniciada)
+    object CrearUsuario : Screen("crear_usuario") // Pantalla 3 (Única pantalla de registro)
+    object Principal : Screen("principal")        // Pantalla 4 (Noticias y Proyectos I+D)
+    object Foro : Screen("foro")                  // Pantalla 5 (Foro Técnico API REST)
+    object Perfil : Screen("perfil")              // Pantalla 6 (Editar Perfil)
     object Detalle : Screen("detalle/{proyectoId}") {
         fun crearRuta(proyectoId: Int) = "detalle/$proyectoId"
     }
@@ -25,39 +24,78 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val usuarioViewModel: UsuarioViewModel = viewModel()
+    val authViewModel: AuthViewModel = viewModel()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Inicio.route
+        startDestination = Screen.Login.route
     ) {
-        // Nueva Pantalla de Bienvenida / Hub de Navegación
+        // PANTALLA 1: Login + Acceso a Registro único
+        composable(Screen.Login.route) {
+            LoginScreen(
+                authViewModel = authViewModel,
+                onLoginExitoso = {
+                    navController.navigate(Screen.Inicio.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+                onIrACrearUsuario = {
+                    navController.navigate(Screen.CrearUsuario.route)
+                }
+            )
+        }
+
+        // PANTALLA 3: Única Pantalla de Registro de Usuario
+        composable(Screen.CrearUsuario.route) {
+            CrearUsuarioScreen(
+                authViewModel = authViewModel,
+                onVolver = { navController.popBackStack() },
+                onUsuarioCreado = {
+                    navController.navigate(Screen.Inicio.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // PANTALLA 2: Dashboard Sesión Iniciada
         composable(Screen.Inicio.route) {
             InicioScreen(
-                onIrAProyectos = { navController.navigate(Screen.Principal.route) },
+                authViewModel = authViewModel,
+                onIrANoticias = { navController.navigate(Screen.Principal.route) },
                 onIrAForo = { navController.navigate(Screen.Foro.route) },
-                onIrAContacto = { navController.navigate(Screen.Registro.route) },
-                onIrAPerfil = { navController.navigate(Screen.Perfil.route) }
+                onIrAEditarPerfil = { navController.navigate(Screen.Perfil.route) },
+                onCerrarSesion = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Inicio.route) { inclusive = true }
+                    }
+                }
             )
         }
 
-        // Catálogo de Proyectos I+D + DataStore
+        // PANTALLA 4: Noticias y Proyectos I+D (limpia, sin botones inferiores)
         composable(Screen.Principal.route) {
             PantallaPrincipal(
-                onIrASolicitud = { navController.navigate(Screen.Registro.route) },
-                onIrAPerfil = { navController.navigate(Screen.Perfil.route) },
-                onVerDetalle = { id -> navController.navigate(Screen.Detalle.crearRuta(id)) }
+                onVerDetalle = { id -> navController.navigate(Screen.Detalle.crearRuta(id)) },
+                onVolver = { navController.popBackStack() }
             )
         }
 
-        // Foro Técnico (CRUD API REST con Retrofit + Logs)
+        // PANTALLA 5: Foro Técnico (API REST)
         composable(Screen.Foro.route) {
             PostScreen(
                 onVolver = { navController.popBackStack() }
             )
         }
 
-        // Pantalla de Detalle por ID
+        // PANTALLA 6: Editar Perfil
+        composable(Screen.Perfil.route) {
+            PerfilScreen(
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+        // Detalle de noticia/proyecto por ID
         composable(
             route = Screen.Detalle.route,
             arguments = listOf(navArgument("proyectoId") { type = NavType.IntType })
@@ -65,36 +103,6 @@ fun AppNavigation() {
             val proyectoId = backStackEntry.arguments?.getInt("proyectoId") ?: 0
             DetalleProyectoScreen(
                 proyectoId = proyectoId,
-                onVolver = { navController.popBackStack() }
-            )
-        }
-
-        // Formulario de Solicitud / Contacto
-        composable(Screen.Registro.route) {
-            RegistroScreen(
-                usuarioViewModel = usuarioViewModel,
-                onVolver = { navController.popBackStack() }
-            )
-        }
-
-        // Resumen de la solicitud
-        composable(Screen.Resumen.route) {
-            ResumenScreen(
-                viewModel = usuarioViewModel,
-                onVolverInicio = {
-                    navController.navigate(Screen.Inicio.route) {
-                        popUpTo(Screen.Inicio.route) { inclusive = true }
-                    }
-                },
-                onIrAPerfil = {
-                    navController.navigate(Screen.Perfil.route)
-                }
-            )
-        }
-
-        // Perfil de Usuario / Investigador
-        composable(Screen.Perfil.route) {
-            PerfilScreen(
                 onVolver = { navController.popBackStack() }
             )
         }

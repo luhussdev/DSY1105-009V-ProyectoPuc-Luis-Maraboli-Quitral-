@@ -10,17 +10,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectopuc_v10.ui.components.ImagenInteligente
+import com.example.proyectopuc_v10.ui.theme.AzulInstitucional
+import com.example.proyectopuc_v10.ui.theme.Blanco
 import com.example.proyectopuc_v10.viewmodel.PerfilViewModel
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfilScreen(
     viewModel: PerfilViewModel = viewModel(),
@@ -28,14 +32,25 @@ fun PerfilScreen(
 ) {
     val context = LocalContext.current
     val imagenUri by viewModel.imagenUri.collectAsState()
-
-    // Recolectamos el usuario desde la base de datos de Room
     val usuario by viewModel.usuarioState.collectAsState()
-
-    // Variable para mantener el Uri de la foto que tomará la cámara
     var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
-    // Launcher para Galeria (GetContent)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // Estados editables inicializados cuando carga el usuario desde Room
+    var correo by remember { mutableStateOf("") }
+    var organizacion by remember { mutableStateOf("") }
+    var areaInteres by remember { mutableStateOf("") }
+
+    LaunchedEffect(usuario) {
+        usuario?.let { u ->
+            correo = u.correo
+            organizacion = u.organizacion
+            areaInteres = u.areaInteres
+        }
+    }
+
     val galeriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -44,7 +59,6 @@ fun PerfilScreen(
         }
     }
 
-    // Launcher para Cámara (TakePicture)
     val camaraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { exito: Boolean ->
@@ -53,7 +67,27 @@ fun PerfilScreen(
         }
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("CIM UC - Editar Perfil") },
+                navigationIcon = {
+                    IconButton(onClick = onVolver) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Blanco
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = AzulInstitucional,
+                    titleContentColor = Blanco
+                )
+            )
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -62,37 +96,23 @@ fun PerfilScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "Perfil de Usuario",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Componentes de la foto de perfil
             ImagenInteligente(imagenUri = imagenUri)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de selección de imagen actualizados con íconos
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Botón icono "Galeria"
                 Button(
                     onClick = { galeriaLauncher.launch("image/*") },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.PhotoLibrary,
-                        contentDescription = "Galeria"
-                    )
+                    Icon(Icons.Default.PhotoLibrary, contentDescription = "Galería")
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Galeria")
+                    Text("Galería")
                 }
 
-                // Botón icono "Cámara"
                 OutlinedButton(
                     onClick = {
                         val uri = viewModel.crearUriTemporal(context)
@@ -101,10 +121,7 @@ fun PerfilScreen(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.PhotoCamera,
-                        contentDescription = "Camara"
-                    )
+                    Icon(Icons.Default.PhotoCamera, contentDescription = "Cámara")
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Cámara")
                 }
@@ -112,50 +129,58 @@ fun PerfilScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Datos persistidos cargados desde Room
-            usuario?.let { u ->
-                Card(
+            if (usuario != null) {
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Column(
+                    OutlinedTextField(
+                        value = correo,
+                        onValueChange = { correo = it },
+                        label = { Text("Correo electrónico") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = organizacion,
+                        onValueChange = { organizacion = it },
+                        label = { Text("Organización / Institución") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = areaInteres,
+                        onValueChange = { areaInteres = it },
+                        label = { Text("Área de Interés") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            viewModel.actualizarPerfil(correo, organizacion, areaInteres)
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Perfil actualizado correctamente")
+                            }
+                        },
+                        enabled = correo.isNotBlank() && organizacion.isNotBlank(),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .height(50.dp)
                     ) {
-                        Text(
-                            text = "Correo: ${u.correo}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Organización: ${u.organizacion}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = "Área de Interés: ${u.areaInteres}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Icon(Icons.Default.Save, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Guardar Cambios")
                     }
                 }
-            } ?: run {
+            } else {
                 CircularProgressIndicator()
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("Cargando información del usuario...")
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Botón para volver con destino explicito e ícono
-            OutlinedButton(onClick = onVolver) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Volver al Catálogo de Proyectos")
             }
         }
     }

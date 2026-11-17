@@ -3,6 +3,7 @@ package com.example.proyectopuc_v10.viewmodel
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,9 +14,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.io.File
 
-class PerfilViewModel (application: Application) : AndroidViewModel(application) {
+class PerfilViewModel(application: Application) : AndroidViewModel(application) {
 
     private val usuarioDao = AppDatabase.obtenerBaseDatos(application).UsuarioDao()
 
@@ -31,9 +33,27 @@ class PerfilViewModel (application: Application) : AndroidViewModel(application)
     private val _imagenUri = MutableStateFlow<Uri?>(null)
     val imagenUri: StateFlow<Uri?> = _imagenUri.asStateFlow()
 
-    // Guardar URI proveniente de la Galeria o Cámara
+    // Guardar URI proveniente de la Galería o Cámara
     fun actualizarImagen(uri: Uri?) {
         _imagenUri.value = uri
+    }
+
+    // Persistir los cambios editados del perfil en Room
+    fun actualizarPerfil(
+        nuevoCorreo: String,
+        nuevaOrganizacion: String,
+        nuevaAreaInteres: String
+    ) {
+        val actual = usuarioState.value ?: return
+        viewModelScope.launch {
+            val usuarioActualizado = actual.copy(
+                correo = nuevoCorreo.trim(),
+                organizacion = nuevaOrganizacion.trim(),
+                areaInteres = nuevaAreaInteres.trim()
+            )
+            usuarioDao.guardarUsuario(usuarioActualizado)
+            Log.d("ROOM_PERFIL", "Perfil actualizado en Room para ID=${actual.id}")
+        }
     }
 
     // Generar un Uri temporal seguro utilizando FileProvider para la Cámara
@@ -53,6 +73,4 @@ class PerfilViewModel (application: Application) : AndroidViewModel(application)
             archivo
         )
     }
-
-
 }
