@@ -2,10 +2,9 @@ package com.example.proyectopuc_v10.data.remote
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
 object RetrofitInstance {
-    private const val BASE_URL = "https://jsonplaceholder.typicode.com"
+    private const val BASE_URL = "https://jsonplaceholder.typicode.com/"
 
     val api: ApiService by lazy {
         Retrofit.Builder()
