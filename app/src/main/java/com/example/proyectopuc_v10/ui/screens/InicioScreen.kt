@@ -18,9 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.proyectopuc_v10.viewmodel.AuthViewModel
 import com.example.proyectopuc_v10.ui.theme.AzulInstitucional
 import com.example.proyectopuc_v10.ui.theme.Blanco
+import com.example.proyectopuc_v10.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,10 +44,15 @@ fun InicioScreen(
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = "Cerrar sesión"
+                            contentDescription = "Cerrar sesión",
+                            tint = Blanco
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = AzulInstitucional,
+                    titleContentColor = Blanco
+                )
             )
         }
     ) { innerPadding ->
@@ -59,7 +64,7 @@ fun InicioScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Tarjeta de sesión activa
+            // Tarjeta de bienvenida de sesión activa
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -85,10 +90,11 @@ fun InicioScreen(
             Text(
                 text = "Secciones Disponibles",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
-            // Pantalla 4: Las Noticias / Proyectos I+D
+            // Acceso a Pantalla 4: Noticias y Proyectos I+D
             ModuloCard(
                 titulo = "Las Noticias y Proyectos I+D",
                 descripcion = "Consulta novedades, capacitaciones CLT y normativas vigentes.",
@@ -96,7 +102,7 @@ fun InicioScreen(
                 onClick = onIrANoticias
             )
 
-            // Pantalla 5: Foro Técnico (API REST CRUD)
+            // Acceso a Pantalla 5: Foro Técnico (API REST)
             ModuloCard(
                 titulo = "Foro Técnico",
                 descripcion = "Publica, edita y comenta aportes técnicos de la comunidad en línea.",
@@ -104,7 +110,7 @@ fun InicioScreen(
                 onClick = onIrAForo
             )
 
-            // Pantalla 6: Editar Perfil
+            // Acceso a Pantalla 6: Editar Perfil
             ModuloCard(
                 titulo = "Editar Perfil",
                 descripcion = "Administra tu información personal y preferencias de usuario.",
@@ -114,7 +120,7 @@ fun InicioScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Botón Cerrar Sesión -> Devuelve a Pantalla 1
+            // Botón Cerrar Sesión -> Regresa a Pantalla 1 (Login)
             OutlinedButton(
                 onClick = {
                     authViewModel.cerrarSesion()
@@ -149,7 +155,10 @@ private fun ModuloCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -160,7 +169,7 @@ private fun ModuloCard(
             Icon(
                 imageVector = icono,
                 contentDescription = titulo,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = AzulInstitucional,
                 modifier = Modifier.size(36.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -168,7 +177,8 @@ private fun ModuloCard(
                 Text(
                     text = titulo,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

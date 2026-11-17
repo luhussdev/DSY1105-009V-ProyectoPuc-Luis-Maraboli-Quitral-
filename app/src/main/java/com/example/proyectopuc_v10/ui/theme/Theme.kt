@@ -7,14 +7,17 @@ import androidx.compose.runtime.Composable
 private val LightColorSchema = lightColorScheme(
     primary = AzulPrimario,
     onPrimary = Blanco,
-    primaryContainer = AzulInstitucional,
-    onPrimaryContainer = Blanco,
+    primaryContainer = AzulClaroUC,
+    onPrimaryContainer = AzulInstitucional,
     secondary = AmarilloAcento,
-    onSecondary = AzulInstitucional,
+    onSecondary = GrisTituloUC,
     background = GrisFondo,
-    onBackground = AzulInstitucional,
+    onBackground = GrisTituloUC,
     surface = Blanco,
-    onSurface = AzulInstitucional
+    onSurface = GrisTituloUC,
+    surfaceVariant = TarjetaWebUC,
+    onSurfaceVariant = GrisTextoUC,
+    outline = BordeWebUC
 )
 
 @Composable

@@ -12,16 +12,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectopuc_v10.model.Post
+import com.example.proyectopuc_v10.ui.theme.AzulInstitucional
+import com.example.proyectopuc_v10.ui.theme.Blanco
 import com.example.proyectopuc_v10.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostScreen(
-    onVolver: () -> Unit,
-    postViewModel: PostViewModel = viewModel()
+    postViewModel: PostViewModel = viewModel(),
+    onVolver: () -> Unit = {}
 ) {
     val posts by postViewModel.postList.collectAsState()
     val isLoading by postViewModel.isLoading.collectAsState()
@@ -30,12 +33,13 @@ fun PostScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var showCreateDialog by remember { mutableStateOf(false) }
-    var postToEdit by remember { mutableStateOf<Post?>(null) }
+    var mostrarDialogoCrear by remember { mutableStateOf(false) }
+    var postAEditar by remember { mutableStateOf<Post?>(null) }
 
+    // Mostrar feedback en Snackbar cada vez que se crea, edita o elimina un post
     LaunchedEffect(operationMessage) {
-        operationMessage?.let { message ->
-            snackbarHostState.showSnackbar(message)
+        operationMessage?.let { mensaje ->
+            snackbarHostState.showSnackbar(mensaje)
             postViewModel.clearOperationMessage()
         }
     }
@@ -43,25 +47,35 @@ fun PostScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Foro Técnico CIM UC") },
+                title = { Text("CIM UC - Foro Técnico") },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver al inicio"
+                            contentDescription = "Volver",
+                            tint = Blanco
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = AzulInstitucional,
+                    titleContentColor = Blanco
+                )
             )
         },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showCreateDialog = true }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Nueva Publicación")
+            FloatingActionButton(
+                onClick = { mostrarDialogoCrear = true },
+                containerColor = AzulInstitucional,
+                contentColor = Blanco
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Nuevo aporte"
+                )
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -69,71 +83,79 @@ fun PostScreen(
                 .padding(innerPadding)
         ) {
             when {
-                isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                isLoading && posts.isEmpty() -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = AzulInstitucional
+                    )
                 }
-                errorMessage != null -> {
+
+                errorMessage != null && posts.isEmpty() -> {
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = errorMessage ?: "Error desconocido",
+                            text = errorMessage ?: "Error al cargar el foro",
                             color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyMedium
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
                         Button(onClick = { postViewModel.fetchPosts() }) {
                             Text("Reintentar")
                         }
                     }
                 }
+
                 else -> {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(top = 12.dp, bottom = 80.dp)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(items = posts, key = { it.id }) { post ->
+                        items(posts, key = { it.id }) { post ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
                                             text = "#${post.id} - ${post.title}",
                                             style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             modifier = Modifier.weight(1f)
                                         )
-                                        Row {
-                                            IconButton(onClick = { postToEdit = post }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Edit,
-                                                    contentDescription = "Editar Publicación"
-                                                )
-                                            }
-                                            IconButton(onClick = { postViewModel.deletePost(post.id) }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Delete,
-                                                    contentDescription = "Eliminar Publicación",
-                                                    tint = MaterialTheme.colorScheme.error
-                                                )
-                                            }
+                                        IconButton(onClick = { postAEditar = post }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = "Editar",
+                                                tint = AzulInstitucional
+                                            )
+                                        }
+                                        IconButton(onClick = { postViewModel.deletePost(post.id) }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Eliminar",
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
                                         }
                                     }
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Spacer(modifier = Modifier.height(6.dp))
                                     Text(
                                         text = post.body,
-                                        style = MaterialTheme.typography.bodyMedium
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -143,28 +165,30 @@ fun PostScreen(
             }
         }
 
-        if (showCreateDialog) {
+        // Diálogo para Crear Publicación (POST)
+        if (mostrarDialogoCrear) {
             PostFormDialog(
-                dialogTitle = "Nueva Publicación Técnica",
-                initialTitle = "",
-                initialBody = "",
-                onDismiss = { showCreateDialog = false },
-                onConfirm = { title, body ->
-                    postViewModel.createPost(title, body)
-                    showCreateDialog = false
+                tituloDialogo = "Nueva Publicación Técnica",
+                tituloInicial = "",
+                cuerpoInicial = "",
+                onDismiss = { mostrarDialogoCrear = false },
+                onConfirm = { titulo, cuerpo ->
+                    postViewModel.createPost(titulo, cuerpo)
+                    mostrarDialogoCrear = false
                 }
             )
         }
 
-        postToEdit?.let { post ->
+        // Diálogo para Editar Publicación (PUT)
+        postAEditar?.let { post ->
             PostFormDialog(
-                dialogTitle = "Editar Publicación #${post.id}",
-                initialTitle = post.title,
-                initialBody = post.body,
-                onDismiss = { postToEdit = null },
-                onConfirm = { title, body ->
-                    postViewModel.updatePost(post, title, body)
-                    postToEdit = null
+                tituloDialogo = "Editar Publicación #${post.id}",
+                tituloInicial = post.title,
+                cuerpoInicial = post.body,
+                onDismiss = { postAEditar = null },
+                onConfirm = { titulo, cuerpo ->
+                    postViewModel.updatePost(post, titulo, cuerpo)
+                    postAEditar = null
                 }
             )
         }
@@ -173,31 +197,37 @@ fun PostScreen(
 
 @Composable
 private fun PostFormDialog(
-    dialogTitle: String,
-    initialTitle: String,
-    initialBody: String,
+    tituloDialogo: String,
+    tituloInicial: String,
+    cuerpoInicial: String,
     onDismiss: () -> Unit,
     onConfirm: (String, String) -> Unit
 ) {
-    var title by remember { mutableStateOf(initialTitle) }
-    var body by remember { mutableStateOf(initialBody) }
+    var titulo by remember { mutableStateOf(tituloInicial) }
+    var cuerpo by remember { mutableStateOf(cuerpoInicial) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = dialogTitle) },
+        title = {
+            Text(
+                text = tituloDialogo,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Título") },
+                    value = titulo,
+                    onValueChange = { titulo = it },
+                    label = { Text("Título del tema") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = body,
-                    onValueChange = { body = it },
-                    label = { Text("Contenido") },
+                    value = cuerpo,
+                    onValueChange = { cuerpo = it },
+                    label = { Text("Contenido o consulta técnica") },
                     minLines = 3,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -205,8 +235,8 @@ private fun PostFormDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onConfirm(title.trim(), body.trim()) },
-                enabled = title.isNotBlank() && body.isNotBlank()
+                onClick = { onConfirm(titulo, cuerpo) },
+                enabled = titulo.isNotBlank() && cuerpo.isNotBlank()
             ) {
                 Text("Guardar")
             }
