@@ -51,7 +51,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     testImplementation(libs.junit)
-    //androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
@@ -86,8 +86,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 
     // Compose UI Test
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.2")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.2")
+    //androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.2")
+    // debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.2")
+
 }
 
 tasks.withType<Test>().configureEach {
