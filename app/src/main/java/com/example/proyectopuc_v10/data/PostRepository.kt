@@ -4,13 +4,13 @@ import android.util.Log
 import com.example.proyectopuc_v10.data.remote.RetrofitInstance
 import com.example.proyectopuc_v10.model.Post
 
-class PostRepository {
+open class PostRepository {
 
     companion object {
         private const val TAG = "API_REST_CRUD"
     }
 
-    suspend fun getPosts(): List<Post> {
+    open suspend fun getPosts(): List<Post> {
         Log.d(TAG, "[GET] Solicitando listado de posts a /posts...")
         return try {
             val response = RetrofitInstance.api.getPosts()

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PostViewModel : ViewModel() {
+open class PostViewModel : ViewModel() {
 
     companion object {
         private const val TAG = "API_REST_VIEWMODEL"
@@ -17,8 +17,8 @@ class PostViewModel : ViewModel() {
 
     private val repository = PostRepository()
 
-    private val _postList = MutableStateFlow<List<Post>>(emptyList())
-    val postList: StateFlow<List<Post>> = _postList
+    protected val _postList = MutableStateFlow<List<Post>>(emptyList())
+    open val postList: StateFlow<List<Post>> = _postList
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -38,7 +38,7 @@ class PostViewModel : ViewModel() {
     }
 
     // READ (GET)
-    fun fetchPosts() {
+     open fun fetchPosts() {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
