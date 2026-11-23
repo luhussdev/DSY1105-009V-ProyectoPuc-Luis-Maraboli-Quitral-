@@ -3,7 +3,7 @@
 Aplicación Android nativa desarrollada en **Kotlin** y **Jetpack Compose** para el **Centro UC de Innovación en Madera (CIM UC)**.
 La plataforma permite gestionar sesiones de investigadores, explorar proyectos y capacidades I+D destacadas, participar en un foro técnico conectado a una API REST externa y administrar el perfil de usuario mediante persistencia local.
 
-Este proyecto forma parte de las evaluaciones **Parcial 2 y Parcial 3** (Guía 14 - *Consumiendo una API Rest*) de la asignatura **Desarrollo de Aplicaciones Móviles (DSY1105)**, cumpliendo estrictamente con los lineamientos de arquitectura limpia y trabajo colaborativo.
+Este proyecto forma parte de las evaluaciones **Parcial 2 y Parcial 3** (Guía 14 - *Consumiendo una API Rest* y Guía 15 - *Pruebas Automatizadas en Jetpack Compose*) de la asignatura **Desarrollo de Aplicaciones Móviles (DSY1105)**, cumpliendo estrictamente con los lineamientos de arquitectura limpia, calidad de software y trabajo colaborativo.
 
 ---
 
@@ -29,6 +29,9 @@ El proyecto implementa el patrón **Model-View-ViewModel (MVVM)** asegurando un 
     - **`components/`**: Componentes reutilizables de Jetpack Compose (`CampoText`, `AceptarTerminos`, `TarjetaProyecto`, `ImagenInteligente`).
     - **`screens/`**: Flujo completo de navegación (`LoginScreen`, `InicioScreen`, `CrearUsuarioScreen`, `PantallaPrincipal`, `PostScreen`, `PerfilScreen`, `AppNavigation`).
     - **`theme/`**: Configuración global de Material Design 3 (`Color.kt`, `Theme.kt`, `Type.kt`).
+- **`test/` & `androidTest/`**:
+    - **`test/`**: Pruebas unitarias de repositorio y ViewModel (`PostRepositoryTest`, `PostViewModelTest`)[cite: 12].
+    - **`androidTest/`**: Pruebas instrumentadas de interfaz gráfica (`PostScreenTest`).
 
 ---
 
@@ -62,7 +65,28 @@ El proyecto implementa el patrón **Model-View-ViewModel (MVVM)** asegurando un 
 - **Persistencia Local**: Room Database & Preference DataStore
 - **Consumo API REST**: Retrofit 2 (`2.11.0`) + Converter Gson
 - **Concurrencia**: Corrutinas de Kotlin y `StateFlow` / `collectAsState`
+- **Testing Automatizado**: Kotest (`5.8.0`), MockK (`1.13.10`), JUnit 5, `kotlinx-coroutines-test` y Compose UI Test (`ui-test-junit4`)
 - **Gestión Colaborativa**: Git, GitHub y Trello
+
+---
+
+## Pruebas Automatizadas (Guía 15)
+
+Se implementó una estrategia de validación híbrida bajo arquitectura MVVM para garantizar la estabilidad de la capa de datos, estado y componentes visuales:
+
+- **Pruebas Unitarias (`app/src/test/`)**:
+    - `PostRepositoryTest`: Verificación de obtención de datos desde `ApiService` simulado mediante **MockK** y aserciones con **Kotest** (`StringSpec`).
+    - `PostViewModelTest`: Validación de carga reactiva en `StateFlow` mediante `kotlinx-coroutines-test` (`StandardTestDispatcher`).
+- **Pruebas de Interfaz (`app/src/androidTest/`)**:
+    - `PostScreenTest`: Validación de renderizado de tarjetas y títulos de publicaciones en **Jetpack Compose** mediante `createComposeRule()`.
+
+### Evidencia de Ejecución
+
+#### Pruebas Unitarias (Kotest + MockK)
+![Pruebas Unitarias CIM UC](docs/testing/unit_tests.png)
+
+#### Prueba de Interfaz (Compose UI Test)
+![Prueba UI Compose CIM UC](docs/testing/ui_test.png)
 
 ---
 
@@ -70,10 +94,10 @@ El proyecto implementa el patrón **Model-View-ViewModel (MVVM)** asegurando un 
 
 El seguimiento de tareas del equipo se gestionó mediante metodología Kanban en **Trello** con las columnas *Por hacer*, *En curso* y *Finalizado*:
 
-- **Tablero Trello**: *(Pega aquí el enlace de tu tablero Trello)*
+- **Tablero Trello**: *(https://trello.com/b/25nW8PtJ/proyectopucv10-cim-uc-dsy1105)*
 - **Evidencia de planificación**:
 
-![Tablero Trello CIM UC](docs/tablero_trello/img.png)
+![Tablero Trello CIM UC](docs/tablero_trello/tablero_trello.png)
 
 ---
 
