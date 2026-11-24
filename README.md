@@ -1,9 +1,17 @@
-# CIM UC - App de Vinculación e Innovación en Madera
+# 1. Nombre del Proyecto: CIM UC - App de Vinculación e Innovación en Madera (`ProyectoPuc_v1.0`)
 
 Aplicación Android nativa desarrollada en **Kotlin** y **Jetpack Compose** para el **Centro UC de Innovación en Madera (CIM UC)**.
-La plataforma permite gestionar sesiones de investigadores, explorar proyectos y capacidades I+D destacadas sincronizadas en la nube, participar en un foro técnico conectado a una API REST externa y administrar el perfil de usuario mediante persistencia local.
+La plataforma permite gestionar sesiones de investigadores, explorar proyectos y capacidades I+D sincronizadas en tiempo real con un microservicio propio en **Spring Boot**, participar en un foro técnico conectado a una API REST externa y administrar el perfil de usuario mediante persistencia local.
 
-Este proyecto evoluciona desde las evaluaciones **Parcial 2 y Parcial 3** (Guía 14 - *Consumiendo una API Rest* y Guía 15 - *Pruebas Automatizadas en Jetpack Compose*) hasta la **Evaluación Parcial 4 / Examen Final Transversal (EFT)** de la asignatura **Desarrollo de Aplicaciones Móviles (DSY1105)**, incorporando integración con **microservicio propio en Spring Boot desplegado en Render**, pruebas unitarias de sincronización y generación de **APK firmado (`release`)**.
+Este proyecto corresponde a la **Evaluación Parcial 4** y avance del **Examen Final Transversal (EFT)** de la asignatura **Desarrollo de Aplicaciones Móviles (DSY1105)**, integrando los aprendizajes de las evaluaciones **Parcial 2 y Parcial 3** (Guía 14 - *Consumiendo una API Rest* y Guía 15 - *Pruebas Automatizadas en Jetpack Compose*)[cite: 9, 10].
+
+---
+
+## 2. Integrante y Rol del Proyecto
+
+| Integrante | Rol / Responsabilidad Principal | Usuario GitHub |
+| :--- | :--- | :--- |
+| **Luis Marabolí** | Desarrollo integral Full-Stack: Arquitectura MVVM en Kotlin/Compose, Microservicio Spring Boot (Render), Integración Retrofit/Room, Testing Unitario/UI, Gestión Trello y Firma APK | `@luhussdev` / `@Luhuss` |
 
 ---
 
@@ -12,7 +20,6 @@ Este proyecto evoluciona desde las evaluaciones **Parcial 2 y Parcial 3** (Guía
 El **Centro de Innovación en Madera de la Pontificia Universidad Católica de Chile (CIM UC)** desarrolla proyectos de investigación aplicada, normativas sísmicas y transferencia tecnológica en construcción sustentable. Sin embargo, la información de proyectos activos, líderes de investigación y publicaciones técnicas suele encontrarse dispersa en portales estáticos difíciles de consultar en terreno o desde dispositivos móviles.
 
 **Solución implementada:**
-Una aplicación móvil nativa que centraliza y sincroniza en tiempo real:
 - **Catálogo de Proyectos I+D en la Nube:** Conectado a un microservicio REST propio desarrollado en **Spring Boot (Java 21)** desplegado mediante **Docker en Render**, respaldado con caché local en **SQLite (Room)** para operación offline.
 - **Foro Técnico y Publicaciones Externas:** Consumo CRUD completo de APIs REST externas mediante **Retrofit + Gson**.
 - **Gestión de Investigadores:** Registro, autenticación con validaciones reactivas, perfil con cámara/galería y persistencia de preferencias con **DataStore**.
@@ -21,10 +28,10 @@ Una aplicación móvil nativa que centraliza y sincroniza en tiempo real:
 
 ## Identidad Visual e Interfaz
 El diseño de la aplicación respeta la paleta cromática e identidad institucional de la plataforma web oficial del **CIM UC**:
-- **Azul Institucional / Primario (`#1F4E9E`)**: Utilizado en barras superiores (`TopAppBar`), botones de acción, íconos y acentos principales.
-- **Azul Claro UC (`#E8EFFA`)**: Aplicado en tarjetas de bienvenida de sesión y contenedores destacados.
-- **Amarillo Acento (`#F5B800`)**: Destacado para etiquetas de áreas temáticas I+D y elementos decorativos institucionales.
-- **Gris de Fondo (`#F8F9FA`) y Superficies (`#F1F4F9`)**: Proporcionan un entorno visual limpio e industrial alineado con el portal web.
+- **Azul Institucional / Primario (`#1F4E9E`)**: Barras superiores (`TopAppBar`), botones de acción, íconos y acentos principales.
+- **Azul Claro UC (`#E8EFFA`)**: Tarjetas de bienvenida de sesión y contenedores destacados.
+- **Amarillo Acento (`#F5B800`)**: Etiquetas de áreas temáticas I+D y elementos decorativos institucionales.
+- **Gris de Fondo (`#F8F9FA`) y Superficies (`#F1F4F9`)**: Entorno visual limpio e industrial alineado con el portal web.
 
 ---
 
@@ -67,7 +74,7 @@ El proyecto implementa el patrón **Model-View-ViewModel (MVVM)** con estrategia
 
 ---
 
-## Funcionalidades Principales
+## 3. Funcionalidades Principales
 
 1. **Autenticación y Registro con Persistencia Local (`LoginScreen` + `CrearUsuarioScreen`)**:
     - Inicio de sesión con validación de credenciales y sesión activa en `AuthViewModel`.
@@ -90,7 +97,7 @@ El proyecto implementa el patrón **Model-View-ViewModel (MVVM)** con estrategia
 
 ---
 
-## Endpoints Integrados
+## 4. Endpoints Utilizados (API Externa y Microservicio)
 
 ### A. Microservicio Propio (Spring Boot 4.2 + Java 21 + Docker en Render)
 - **URL Base Producción:** `https://cimuc-api.onrender.com/`
@@ -105,18 +112,8 @@ El proyecto implementa el patrón **Model-View-ViewModel (MVVM)** con estrategia
 | `DELETE` | `/api/proyectos/{id}` | Elimina un proyecto del catálogo remoto y local. |
 
 ### B. API Externa (Consumo REST)
-- **URL Base:** `[https://jsonplaceholder.typicode.com/](https://jsonplaceholder.typicode.com/)`
+- **URL Base:** `https://jsonplaceholder.typicode.com/`
 - **Endpoints:** `GET /posts`, `POST /posts`, `PUT /posts/{id}`, `DELETE /posts/{id}`.
-
----
-
-## Tecnologías y Librerías
-
-- **Móvil:** Kotlin, Jetpack Compose (Material Design 3), Navigation Compose, Room Database, Preference DataStore, Coil.
-- **Red y Concurrencia:** Retrofit 2 (`2.11.0`), OkHttp3, Converter Gson, Corrutinas de Kotlin y `StateFlow`.
-- **Backend (Microservicio):** Spring Boot `4.2.0`, Java `21`, Spring Data JPA, H2 Database, Docker, Render Cloud.
-- **Testing Automatizado:** Kotest (`5.8.0`), MockK (`1.13.10`), JUnit 5, `kotlinx-coroutines-test` y Compose UI Test (`ui-test-junit4`).
-- **Gestión Colaborativa y Despliegue:** Git, GitHub, Trello y Firma Digital APK (`KeyStore .jks`).
 
 ---
 
@@ -141,10 +138,26 @@ Se implementó una estrategia de validación híbrida bajo arquitectura MVVM par
 
 ---
 
-## Firma Digital y APK de Producción (`Release`)
+## 5. Pasos para Ejecutar
+
+1. Clonar el repositorio móvil y el microservicio backend:
+
+       git clone https://github.com/luhussdev/ProyectoPuc_v10.git
+       git clone https://github.com/luhussdev/cimuc-api.git
+
+2. Abrir `ProyectoPuc_v10` en **Android Studio** (Ladybug o superior) y esperar la sincronización de Gradle.
+3. Verificar conexión a internet en el emulador o dispositivo físico (`minSdk 24`, `targetSdk 37`) para la comunicación con `https://cimuc-api.onrender.com/` y `https://jsonplaceholder.typicode.com/`.
+4. Presionar **Run (`▶`)** para compilar y desplegar la aplicación en modo desarrollo, o instalar directamente el paquete firmado ubicado en `app/release/app-release.apk`.
+
+---
+
+## 6. Captura del APK Firmado y `.jks`
 
 - **Artefacto generado:** `app/release/app-release.apk`
-- **Firma criptográfica:** Firmado mediante llave privada RSA 2048-bit (`KeyStore .jks`) con esquemas **V1 (JAR Signature)** y **V2 (APK Signature Scheme)** para instalación directa en dispositivos físicos Android (`minSdk 24` / `targetSdk 37`).
+- **Archivo KeyStore:** `keystore/keystore_cimuc.jks/Untitled.jks` (configurado en `app/build.gradle.kts` bajo `signingConfigs.release`).
+- **Firma criptográfica:** RSA 2048-bit con esquemas **V1 (JAR Signature)** y **V2 (APK Signature Scheme)**.
+
+![Evidencia APK Firmado y KeyStore JKS](docs/release/apk_firmado_jks.png)
 
 ---
 
@@ -156,14 +169,3 @@ El seguimiento de tareas del equipo se gestionó mediante metodología Kanban en
 - **Evidencia de planificación:**
 
 ![Tablero Trello CIM UC](docs/tablero_trello/tablero_trello.png)
-
----
-
-## Instalación y Ejecución
-
-1. Clonar el repositorio:
-
-       git clone [https://github.com/luhussdev/ProyectoPuc_v10.git](https://github.com/luhussdev/ProyectoPuc_v10.git)
-
-2. Abrir el proyecto en **Android Studio** (Ladybug o superior) y sincronizar Gradle.
-3. Ejecutar en un emulador o dispositivo físico (`minSdk 24`), o instalar directamente el paquete firmado ubicado en `app/release/app-release.apk`.

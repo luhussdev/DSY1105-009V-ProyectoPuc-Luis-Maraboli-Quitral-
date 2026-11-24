@@ -23,8 +23,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("../keystore/keystore_cimuc.jks/Untitled.jks")
+            storePassword = "wala1522"
+            keyAlias = "cimuc_key"
+            keyPassword = "wala1522"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -42,7 +52,6 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
-
 }
 
 dependencies {
@@ -89,9 +98,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 
-    // Compose UI Test
-    //androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.2")
-    // debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.2")
 
 }
 
