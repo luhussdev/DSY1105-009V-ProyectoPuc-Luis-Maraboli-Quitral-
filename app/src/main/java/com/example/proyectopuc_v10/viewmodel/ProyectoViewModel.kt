@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.proyectopuc_v10.data.ProyectoRepository
 import com.example.proyectopuc_v10.data.local.AppDatabase
 import com.example.proyectopuc_v10.model.ProyectoCim
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -16,9 +18,10 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
 
     private val repository: ProyectoRepository
 
-    // Expone la lista transformada a ProyectoCim para que la UI no sufra cambio de tipo
-
     val proyectos: StateFlow<List<ProyectoCim>>
+
+    private val _sincronizando = MutableStateFlow(false)
+    val sincronizando: StateFlow<Boolean> = _sincronizando.asStateFlow()
 
     init {
         val database = AppDatabase.obtenerBaseDatos(application)
@@ -42,6 +45,16 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
+
+        recargarDesdeServidor()
+    }
+
+    fun recargarDesdeServidor() {
+        viewModelScope.launch {
+            _sincronizando.value = true
+            repository.sincronizarConMicroservicio()
+            _sincronizando.value = false
+        }
     }
 
     fun agregarProyecto(
@@ -62,20 +75,3 @@ class ProyectoViewModel(application: Application) : AndroidViewModel(application
         }
     }
 }
-
-/*
-class ProyectoViewModel : ViewModel() {
-
-
-    private val _proyectos = MutableStateFlow<List<ProyectoCim>>(emptyList())
-    val proyectos: StateFlow<List<ProyectoCim>> = _proyectos.asStateFlow()
-
-    init {
-        cargarProyectos()
-    }
-
-    private fun cargarProyectos() {
-        _proyectos.value = ProyectoRepository.obtenerProyectosDestacados()
-    }
-}
-*/

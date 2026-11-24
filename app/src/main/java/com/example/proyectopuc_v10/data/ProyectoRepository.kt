@@ -1,14 +1,47 @@
 package com.example.proyectopuc_v10.data
 
+import android.util.Log
 import com.example.proyectopuc_v10.data.local.ProyectoDao
 import com.example.proyectopuc_v10.data.local.ProyectoEntity
+import com.example.proyectopuc_v10.data.remote.CimucApiService
+import com.example.proyectopuc_v10.data.remote.RetrofitInstance
+import com.example.proyectopuc_v10.model.ProyectoRemoto
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
+class ProyectoRepository(
+    private val proyectoDao: ProyectoDao,
+    private val cimucApi: CimucApiService = RetrofitInstance.cimucApi
+) {
 
-class ProyectoRepository(private val proyectoDao: ProyectoDao) {
-
-    // Flujo reactivo con la lista de proyectos en la base de datos SQLite
+    // Flujo reactivo con la lista de proyectos en la base de datos SQLite (Room)
     val todosLosProyectos: Flow<List<ProyectoEntity>> = proyectoDao.obtenerTodosLosProyectos()
+
+    suspend fun sincronizarConMicroservicio() {
+        try {
+            val remotos = cimucApi.obtenerProyectos()
+            if (remotos.isNotEmpty()) {
+                val localesActuales = proyectoDao.obtenerTodosLosProyectos().first()
+                localesActuales.forEach { proyectoDao.eliminarProyecto(it) }
+
+                remotos.forEach { remoto ->
+                    proyectoDao.insertarProyecto(
+                        ProyectoEntity(
+                            id = remoto.id?.toInt() ?: 0,
+                            titulo = remoto.titulo,
+                            areaTematica = remoto.areaTematica,
+                            descripcion = "${remoto.descripcion} [Estado: ${remoto.estado}]",
+                            liderInvestigacion = remoto.investigadorPrincipal,
+                            anio = 2026
+                        )
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            // Si Render está despertando o no hay red, mantiene la caché local de Room sin crashear
+            Log.e("ProyectoRepository", "Error sincronizando con Render: ${e.message}")
+        }
+    }
 
     suspend fun obtenerProyectosPorId(id: Int): ProyectoEntity? {
         return proyectoDao.obtenerProyectoPorId(id)
@@ -21,7 +54,24 @@ class ProyectoRepository(private val proyectoDao: ProyectoDao) {
         liderInvestigacion: String,
         anio: Int
     ) {
+        var idGuardado = 0
+        try {
+            val creadoEnRender = cimucApi.crearProyecto(
+                ProyectoRemoto(
+                    titulo = titulo,
+                    areaTematica = areaTematica,
+                    descripcion = descripcion,
+                    investigadorPrincipal = liderInvestigacion,
+                    estado = "En ejecución"
+                )
+            )
+            idGuardado = creadoEnRender.id?.toInt() ?: 0
+        } catch (e: Exception) {
+            Log.e("ProyectoRepository", "No se pudo enviar a Render, guardando localmente: ${e.message}")
+        }
+
         val nuevoProyecto = ProyectoEntity(
+            id = idGuardado,
             titulo = titulo,
             areaTematica = areaTematica,
             descripcion = descripcion,
@@ -32,44 +82,13 @@ class ProyectoRepository(private val proyectoDao: ProyectoDao) {
     }
 
     suspend fun eliminarProyecto(proyecto: ProyectoEntity) {
+        try {
+            if (proyecto.id > 0) {
+                cimucApi.eliminarProyecto(proyecto.id.toLong())
+            }
+        } catch (e: Exception) {
+            Log.e("ProyectoRepository", "Error eliminando en Render: ${e.message}")
+        }
         proyectoDao.eliminarProyecto(proyecto)
     }
 }
-
-
-
-
-/*
-import com.example.proyectopuc_v10.model.ProyectoCim
-
-object ProyectoRepository {
-    fun obtenerProyectosDestacados(): List<ProyectoCim> {
-        return listOf(
-            ProyectoCim(
-                id = 1,
-                titulo = "Centro Comunitarios Resilientes",
-                areaTematica = "Proyectos Destacados",
-                descripcion = "Proyectos para las localidades de Penco y Lota, Región del Biobío.",
-                liderInvestigacion = "Equipo CIM UC",
-                anio = 2026
-            ),
-            ProyectoCim(
-                id = 2,
-                titulo = "Durabilidad Natural de la Madera",
-                areaTematica = "Propiedades e Investigación",
-                descripcion = "Clasificación, propiedades y evaluación del riesgo en estructuras de madera.",
-                liderInvestigacion = "Mario Ubilla (Investigador CENAMAD)",
-                anio = 2026
-            ),
-            ProyectoCim(
-                id = 3,
-                titulo = "Ciclo de Webinar: Normativas para Construir en Madera",
-                areaTematica = "Noticias y Formación",
-                descripcion = "Alcances de la normativas NCh789 y NCh819 para la durabilidad de la madera.",
-                liderInvestigacion = "CENAMAD / CIM UC",
-                anio = 2026
-            )
-        )
-    }
-}
- */
