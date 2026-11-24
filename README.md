@@ -105,4 +105,4 @@ El seguimiento de tareas del equipo se gestionó mediante metodología Kanban en
 
 1. Clonar el repositorio:
    ```bash
-   git clone [https://github.com/TU_USUARIO/ProyectoPuc_v10.git](https://github.com/TU_USUARIO/ProyectoPuc_v10.git)
+   git clone [https://github.com/luhussdev/ProyectoPuc_v10.git](https://github.com/TU_USUARIO/ProyectoPuc_v10.git)
