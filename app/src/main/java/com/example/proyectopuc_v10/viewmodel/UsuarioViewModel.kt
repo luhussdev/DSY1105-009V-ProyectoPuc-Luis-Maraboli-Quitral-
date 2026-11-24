@@ -90,10 +90,11 @@ class UsuarioViewModel(application: Application) : AndroidViewModel(application)
         }
 
         // 2. Validación de Correo (No vacio, contiene '@' y formato estándar)
+        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
         if (correo.trim().isBlank()) {
             errCorreo = "Ingresa un correo institucional válido"
             esValido = false
-        } else if (!correo.contains("@") || !android.util.Patterns.EMAIL_ADDRESS.matcher(correo.trim()).matches()) {
+        } else if (!emailRegex.matches(correo.trim())) {
             errCorreo = "Ingresa un correo institucional válido (ej: usuario@dominio.cl)"
             esValido = false
         }
