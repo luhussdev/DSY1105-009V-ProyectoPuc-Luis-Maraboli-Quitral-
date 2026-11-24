@@ -89,7 +89,7 @@ fun LoginScreen(
                     authViewModel.clearError()
                 },
                 label = { Text("Correo electrónico") },
-                placeholder = { Text("admin@cimuc.cl") },
+                placeholder = { Text("usuario@cimuc.cl") },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
@@ -160,14 +160,6 @@ fun LoginScreen(
             ) {
                 Text("Crear Usuario")
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Demo rápida: admin@cimuc.cl / 123456",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
