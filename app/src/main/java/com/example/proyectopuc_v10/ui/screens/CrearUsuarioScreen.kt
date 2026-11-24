@@ -1,5 +1,6 @@
 package com.example.proyectopuc_v10.ui.screens
 
+import android.util.Patterns
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,8 +41,48 @@ fun CrearUsuarioScreen(
     var password by remember { mutableStateOf("") }
     var estaSuscrito by remember { mutableStateOf(true) }
 
+    // Estados de error por campo
+    var errorNombre by remember { mutableStateOf<String?>(null) }
+    var errorEmail by remember { mutableStateOf<String?>(null) }
+    var errorOrganizacion by remember { mutableStateOf<String?>(null) }
+    var errorPassword by remember { mutableStateOf<String?>(null) }
+
     // Estado para mostrar la alerta de confirmación al crear la cuenta
     var mostrarAlertaExito by remember { mutableStateOf(false) }
+
+    fun validarFormulario(): Boolean {
+        var esValido = true
+
+        if (nombre.trim().length < 3) {
+            errorNombre = "Ingresa tu nombre completo (mínimo 3 caracteres)"
+            esValido = false
+        } else {
+            errorNombre = null
+        }
+
+        if (email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()) {
+            errorEmail = "Ingresa un correo electrónico válido (ej. usuario@cimuc.cl)"
+            esValido = false
+        } else {
+            errorEmail = null
+        }
+
+        if (organizacion.isBlank()) {
+            errorOrganizacion = "La organización o institución es obligatoria"
+            esValido = false
+        } else {
+            errorOrganizacion = null
+        }
+
+        if (password.length < 6) {
+            errorPassword = "La contraseña debe tener al menos 6 caracteres"
+            esValido = false
+        } else {
+            errorPassword = null
+        }
+
+        return esValido
+    }
 
     Scaffold(
         topBar = {
@@ -87,9 +128,16 @@ fun CrearUsuarioScreen(
 
             OutlinedTextField(
                 value = nombre,
-                onValueChange = { nombre = it },
+                onValueChange = {
+                    nombre = it
+                    if (errorNombre != null) errorNombre = null
+                },
                 label = { Text("Nombre completo") },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                isError = errorNombre != null,
+                supportingText = {
+                    errorNombre?.let { Text(text = it, color = MaterialTheme.colorScheme.error) }
+                },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -99,19 +147,31 @@ fun CrearUsuarioScreen(
                 onValueChange = {
                     email = it
                     authViewModel.clearError()
+                    if (errorEmail != null) errorEmail = null
                 },
                 label = { Text("Correo electrónico") },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                isError = errorEmail != null,
+                supportingText = {
+                    errorEmail?.let { Text(text = it, color = MaterialTheme.colorScheme.error) }
+                },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
                 value = organizacion,
-                onValueChange = { organizacion = it },
+                onValueChange = {
+                    organizacion = it
+                    if (errorOrganizacion != null) errorOrganizacion = null
+                },
                 label = { Text("Organización / Institución") },
                 leadingIcon = { Icon(Icons.Default.Business, contentDescription = null) },
+                isError = errorOrganizacion != null,
+                supportingText = {
+                    errorOrganizacion?.let { Text(text = it, color = MaterialTheme.colorScheme.error) }
+                },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -127,11 +187,18 @@ fun CrearUsuarioScreen(
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    if (errorPassword != null) errorPassword = null
+                },
                 label = { Text("Contraseña (mín. 6 caracteres)") },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                isError = errorPassword != null,
+                supportingText = {
+                    errorPassword?.let { Text(text = it, color = MaterialTheme.colorScheme.error) }
+                },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -160,25 +227,23 @@ fun CrearUsuarioScreen(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Botón Crear Perfil -> Guarda en Room y dispara alerta de éxito
+            // Botón Crear Perfil -> Valida campos y guarda en Room
             Button(
                 onClick = {
-                    val creado = authViewModel.registrarUsuario(
-                        nombre = nombre,
-                        email = email,
-                        password = password,
-                        organizacion = organizacion,
-                        areaInteres = areaInteres,
-                        estaSuscrito = estaSuscrito
-                    )
-                    if (creado) {
-                        mostrarAlertaExito = true
+                    if (validarFormulario()) {
+                        val creado = authViewModel.registrarUsuario(
+                            nombre = nombre.trim(),
+                            email = email.trim(),
+                            password = password,
+                            organizacion = organizacion.trim(),
+                            areaInteres = areaInteres.trim(),
+                            estaSuscrito = estaSuscrito
+                        )
+                        if (creado) {
+                            mostrarAlertaExito = true
+                        }
                     }
                 },
-                enabled = nombre.isNotBlank() &&
-                        email.contains("@") &&
-                        organizacion.isNotBlank() &&
-                        password.length >= 6,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
